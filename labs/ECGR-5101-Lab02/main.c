@@ -31,7 +31,7 @@ int main(void) {
     P1DIR|=BIT0; //Set P1.0 and P1.6 as output
     P1OUT&=~BIT0; //Initially turn off the LED
 
-    P2DIR|=BIT0 //Set P2.0 as output
+    P2DIR|=BIT0; //Set P2.0 as output
 
    while(1) //Run code forever
    {
@@ -69,14 +69,24 @@ __interrupt void TMR0()
             }
         if(count==10) //If the state has been consistently the same
             {
-            if(state==0) //If the switch was pressed
-                P1OUT^=BIT0; //Toggle the LED
-            P1IE|=BIT3; //We have handled the debouncing, now we again enable interrupt on P1.3, for it to again detect switch bounce
-            TACTL=0; //Stop the Timer
-            TACTL|=TACLR; //Clear the Timer counter
-            }
+                while(state==0)
+                {
+//                    if(state==0)
+//                    { //If the switch was pressed
+                        P2OUT&= ~BIT0; //turn led off
+                        P1IE|=BIT3; //We have handled the debouncing, now we again enable interrupt on P1.3, for it to again detect switch bounce
+                        TACTL=0; //Stop the Timer
+                        TACTL|=TACLR; //Clear the Timer counter
+                        state = ((P1IN&BIT3)>>3);
+//                    }
+//                    else
+//                    {
+//                        break;
+//                    }
 
-            TACTL&=~(TAIFG); //Reset the interrupt flag
+                }
+                TACTL&=~(TAIFG); //Reset the interrupt flag
+            }
         }
 }
 
