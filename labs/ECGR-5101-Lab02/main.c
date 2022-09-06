@@ -41,16 +41,18 @@ int main(void) {
     return 0;
 }
 
+// Interrupt used for button debouncing.
 #pragma vector=PORT1_VECTOR
 __interrupt void P1_Function()
 {
     count=0; //Reset count
     TACTL|=TASSEL_2+MC_1+TAIE; //Start Timer0 with SMCLK clock source, UP mode and enable overflow interrupt
     state=(P1IN&BIT4)>>3; //Save the state of the switch
-    P1IE&=~BIT4; //Disable interrupt on P1.4, now the Timer will take care of Debouncing
+    P1IE&=~BIT4; // Disable interrupt on P1.4, now the Timer will take care of Debouncing
     P1IFG&=~BIT4; // Reset Port1 interrupt flag
 }
 
+// Interrupt Timer. Turn off P2.0 when button is held.
 #pragma vector=TIMER0_A1_VECTOR
 __interrupt void TMR0()
 {
