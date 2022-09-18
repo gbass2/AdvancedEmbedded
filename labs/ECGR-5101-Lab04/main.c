@@ -58,13 +58,19 @@ int main(void)
     // Setup adc pin.
     setupADC();
 
-    unsigned short splitValue[4]; // Holds each place-value of ADCValue in a separate integer.
-    unsigned short select; // Holds which 7-segement to drive.
+    unsigned short *splitValue; // Holds each place-value of ADCValue in a separate integer.
     unsigned int ADCValue = 0; // Holds the digital value for A0.
 
     while(1) {
         ADCValue = readAnalog(); // Get the digital value
-        display7Seg(ADCValue, select); // Display the digit/char associated with the digital value.
+        splitValue = parseInt(ADCValue); // Splits the adc value into 4 separate integers based on place-value.
+
+        // if(ADCValue % 1000 >=1) {
+        display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
+        display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
+        display7Seg(splitValue[2], 2); // Display the digit/char associated with the digital value.
+        display7Seg(splitValue[3], 3); // Display the digit/char associated with the digital value.
+        // }
     }
 
     return 0;
@@ -81,7 +87,6 @@ void setupADC() {
 
     // Sampling and conversion start.
     ADC10CTL0 |= ENC + ADC10SC;
-
 }
 
 // Reads the A0 analog pin and returns the digital value.
@@ -99,62 +104,56 @@ unsigned int readAnalog() {
 unsigned short display7Seg(unsigned int ADCValue, unsigned short select) {
 
     // If the value is out of range display nothing.
-    if(ADCValue > 1023) {
+    if(ADCValue > 10) {
         P2OUT |= 0xFF; // Set all the leds to off.
         return 0;
     }
 
-    P1OUT &= BIT2;
+    if(select == 0)
+        P1OUT |= BIT1;
+    else if(select == 1)
+        P1OUT |= BIT2;
+    else if(select ==2)
+        P1OUT |= BIT3;
+    else if(select == 3)
+        P1OUT |= BIT4;
+    else 
+        return 0;
 
     P2OUT |= 0xFF; // Flush the current bits.
 
     // Display the values on the 7-segment display.
-//    if(ADCValue == 0)
-//        P2OUT &= SEG_0; // Display 0.
-//    else if(ADCValue == 1)
-//        P2OUT &= SEG_1; // Display 1.
-//    else if(ADCValue == 2)
-//        P2OUT &= SEG_2; // Display 2.
-//    else if(ADCValue == 3)
-//        P2OUT &= SEG_3; // Display 3.
-//    else if(ADCValue ==4 )
-//        P2OUT &= SEG_4; // Display 4.
-//    else if(ADCValue == 5)
-//        P2OUT &= SEG_5; // Display 5.
-//    else if(ADCValue == 6)
-//        P2OUT &= SEG_6; // Display 6.
-//    else if(ADCValue == 7)
-//        P2OUT &= SEG_7; // Display 7.
-//    else if(ADCValue == 8)
-//        P2OUT &= SEG_8; // Display 8.
-//    else if(ADCValue == 9)
-//        P2OUT &= SEG_9; // Display 9.
-
-    // Display the values on the 7-segment display.
-        // Leaves 1 integer value between each 7-segment digit to hand potential
-        // oscillation between 2 digits.
-        if(ADCValue < 64)
-            P2OUT &= SEG_0; // Display 0.
-        else if(ADCValue > 64 && ADCValue < 128)
-            P2OUT &= SEG_1; // Display 1.
-        else if(ADCValue > 128 && ADCValue < 192)
-            P2OUT &= SEG_2; // Display 2.
-        else if(ADCValue > 192 && ADCValue < 256)
-            P2OUT &= SEG_3; // Display 3.
-        else if(ADCValue > 256 && ADCValue < 320)
-            P2OUT &= SEG_4; // Display 4.
-        else if(ADCValue > 320 && ADCValue < 384)
-            P2OUT &= SEG_5; // Display 5.
-        else if(ADCValue > 384 && ADCValue < 448)
-            P2OUT &= SEG_6; // Display 6.
-        else if(ADCValue > 448 && ADCValue < 512)
-            P2OUT &= SEG_7; // Display 7.
-        else if(ADCValue > 512 && ADCValue < 576)
-            P2OUT &= SEG_8; // Display 8.
-        else if(ADCValue > 576 && ADCValue < 640)
-            P2OUT &= SEG_9; // Display 9.
-        else if(ADCValue > 640 && ADCValue < 704)
-
+    if(ADCValue == 0)
+        P2OUT &= SEG_0; // Display 0.
+    else if(ADCValue == 1)
+        P2OUT &= SEG_1; // Display 1.
+    else if(ADCValue == 2)
+        P2OUT &= SEG_2; // Display 2.
+    else if(ADCValue == 3)
+        P2OUT &= SEG_3; // Display 3.
+    else if(ADCValue ==4 )
+        P2OUT &= SEG_4; // Display 4.
+    else if(ADCValue == 5)
+        P2OUT &= SEG_5; // Display 5.
+    else if(ADCValue == 6)
+        P2OUT &= SEG_6; // Display 6.
+    else if(ADCValue == 7)
+        P2OUT &= SEG_7; // Display 7.
+    else if(ADCValue == 8)
+        P2OUT &= SEG_8; // Display 8.
+    else if(ADCValue == 9)
+        P2OUT &= SEG_9; // Display 9.
 
     return 0;
+}
+
+unsigned *parseInt(unsigned int ADCValue){
+    unsigned short splitValue[4]; // Holds each place-value of ADCValue in a separate integer.
+
+    splitValue[0] = ADCValue % 10;
+    splitValue[1] = (ADCValue / 10) % 10;
+    splitValue[2] = (ADCValue/100) % 10;
+    splitValue[3] = (ADCValue/1000) % 10;
+
+    return splitValue;
 }
