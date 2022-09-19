@@ -1,5 +1,5 @@
 #include <msp430.h> 
-#include <stdlib.h>
+#include <math.h>
 
 /************************************************************************************
  * main.c
@@ -65,12 +65,10 @@ int main(void)
 
     while(1) {
         ADCValue = readAnalog(); // Get the digital value
-
-        // Fix the oscillation between numbers by keeping the previous value is the difference is 1.
-        if(abs(ADCValue -prevValue) < 6)
-            ADCValue = prevValue;
-
         parseInt(ADCValue, splitValue); // Splits the adc value into 4 separate integers based on place-value.
+
+        if(abs(ADCValue -prevValue) < 50)
+            ADCValue = prevValue;
 
          if(ADCValue >  999) {
             display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
@@ -110,7 +108,6 @@ void setupADC() {
 
     // Sampling and conversion start.
     ADC10CTL0 |= ENC + ADC10SC;
-
 }
 
 // Reads the A0 analog pin and returns the digital value.
@@ -125,7 +122,7 @@ unsigned int readAnalog() {
 
 // Displays the corresponding passed in digital value to a 7-segment display.
 // Selects the 7-segment to drive based on passed value 0-3.
- unsigned short display7Seg(unsigned int segValue, unsigned short select) {
+unsigned short display7Seg(unsigned int segValue, unsigned short select) {
 
     P2OUT |= 0xFF; // Flush the current bits.
 
