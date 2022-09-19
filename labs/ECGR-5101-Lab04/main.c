@@ -1,4 +1,5 @@
 #include <msp430.h> 
+#include <math.h>
 
 /************************************************************************************
  * main.c
@@ -37,6 +38,7 @@ void setupADC(); // Setup the adc pin.
 unsigned int readAnalog(); // Returns a 10-bit adc value.
 void parseInt(unsigned int, unsigned short*); // Splits the adc value into 4 separate integers based on place-value.
 unsigned short display7Seg(unsigned int, unsigned short); // Drives the pins to display a passed in int (0-9) to a 7-segment display.
+unsigned int prevValue = 0;
 
 // Define 1.0 to be the pin connected to the potentiometer.
 #define POT 0x01
@@ -61,22 +63,35 @@ int main(void)
     unsigned short splitValue[4]; // Holds each place-value of ADCValue in a separate integer.
     unsigned int ADCValue = 0; // Holds the digital value for A0.
 
-    splitValue[0] = 3;
-    splitValue[1] = 2;
-    splitValue[2] = 0;
-    splitValue[3] = 1;
-
-
     while(1) {
         ADCValue = readAnalog(); // Get the digital value
-//        splitValue = parseInt(ADCValue); // Splits the adc value into 4 separate integers based on place-value.
+        parseInt(ADCValue, splitValue); // Splits the adc value into 4 separate integers based on place-value.
 
-        // if(ADCValue % 1000 >=1) {
-        display7Seg(3, 0); // Display the digit/char associated with the digital value.
-        display7Seg(2, 1); // Display the digit/char associated with the digital value.
-        display7Seg(0, 2); // Display the digit/char associated with the digital value.
-        display7Seg(1, 3); // Display the digit/char associated with the digital value.
-        // }
+        if(abs(ADCValue -prevValue) < 50)
+            ADCValue = prevValue;
+
+         if(ADCValue >  999) {
+            display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
+            __delay_cycles(1000);
+            display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
+            __delay_cycles(1000);
+            display7Seg(splitValue[2], 2); // Display the digit/char associated with the digital value.
+            __delay_cycles(1000);
+            display7Seg(splitValue[3], 3); // Display the digit/char associated with the digital value.
+        } else if(ADCValue <  999 && ADCValue > 99) {
+            display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
+            __delay_cycles(1000);
+            display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
+            __delay_cycles(1000);
+            display7Seg(splitValue[2], 2); // Display the digit/char associated with the digital value.
+        } else if(ADCValue <  99 && ADCValue > 9) {
+            display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
+            __delay_cycles(1000);
+            display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
+        } else {
+            display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
+        }
+         prevValue = ADCValue;
     }
 
     return 0;
