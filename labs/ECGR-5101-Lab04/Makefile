@@ -14,8 +14,10 @@ endif
 
 #GCC_DIR = $(abspath $(dir $(lastword $(MAKEFILE)))/../../bin)
 #SUPPORT_FILE_DIRECTORY = $(abspath $(dir $(lastword $(MAKEFILE)))/../../include)
-GCC_DIR = /opt/ti/msp430/gcc/bin
-SUPPORT_FILE_DIRECTORY = /opt/ti/msp430/gcc/include
+#GCC_DIR = /opt/ti/msp430/gcc/bin
+#SUPPORT_FILE_DIRECTORY = /opt/ti/msp430/gcc/include
+GCC_DIR = /Users/graysonbass/ti/msp430-gcc/bin
+SUPPORT_FILE_DIRECTORY = /Users/graysonbass/ti/msp430-gcc/include
 
 DEVICE  = MSP430G2553
 CC      = $(GCC_DIR)/msp430-elf-gcc

@@ -36,7 +36,7 @@
 // Function prototypes.
 void setupADC(); // Setup the adc pin.
 unsigned int readAnalog(); // Returns a 10-bit adc value.
-void parseInt(unsigned int, unsigned short*); // Splits the adc value into 4 separate integers based on place-value.
+void parseADC(unsigned int, unsigned short*); // Splits the adc value into 4 separate integers based on place-value.
 unsigned short display7Seg(unsigned int, unsigned short); // Drives the pins to display a passed in int (0-9) to a 7-segment display.
 unsigned int prevValue = 0;
 
@@ -62,33 +62,42 @@ int main(void)
 
     unsigned short splitValue[4]; // Holds each place-value of ADCValue in a separate integer.
     unsigned int ADCValue = 0; // Holds the digital value for A0.
+    unsigned short threashold = 2; // Threashold to 
 
     while(1) {
         ADCValue = readAnalog(); // Get the digital value
 
-        // Fix the oscillation between numbers by keeping the previous value is the difference is 1.
-        if(abs(ADCValue -prevValue) < 6)
+        // If the current and previous adc value is less than or equal to 2 then don't change the value.
+        if(abs(ADCValue - prevValue) < threashold) {
             ADCValue = prevValue;
+        }
 
-        parseInt(ADCValue, splitValue); // Splits the adc value into 4 separate integers based on place-value.
+        if(ADCValue < threashold)
+            ADCValue = 0;
+        else if(ADCValue > (1023-threashold-2))
+            ADCValue = 1023;
 
-         if(ADCValue >  999) {
+        // Splits the adc value into 4 separate integers based on place-value.
+        parseADC(ADCValue, splitValue); 
+
+        // Display the adc value on the 7-segments. Don't show leading zeros.
+        if(ADCValue >  999) {
             display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
-            __delay_cycles(1000);
+            __delay_cycles(1600);
             display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
-            __delay_cycles(1000);
+            __delay_cycles(1600);
             display7Seg(splitValue[2], 2); // Display the digit/char associated with the digital value.
-            __delay_cycles(1000);
+            __delay_cycles(1600);
             display7Seg(splitValue[3], 3); // Display the digit/char associated with the digital value.
         } else if(ADCValue <  999 && ADCValue > 99) {
             display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
-            __delay_cycles(1000);
+            __delay_cycles(1600);
             display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
-            __delay_cycles(1000);
+            __delay_cycles(1600);
             display7Seg(splitValue[2], 2); // Display the digit/char associated with the digital value.
         } else if(ADCValue <  99 && ADCValue > 9) {
             display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
-            __delay_cycles(1000);
+            __delay_cycles(1600);
             display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
         } else {
             display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
@@ -115,16 +124,24 @@ void setupADC() {
 
 // Reads the A0 analog pin and returns the digital value.
 unsigned int readAnalog() {
+    unsigned short i;
+    unsigned int temp = 0;
 
-    // Sampling and conversion start.
-    ADC10CTL0 |= ENC + ADC10SC;
+    for(i=0; i<50; i++) {
+        // Sampling and conversion start.
+        ADC10CTL0 |= ENC + ADC10SC;
 
-    // Return the value held in ADC10MEM
-    return ADC10MEM;
+        
+        temp += ADC10MEM;
+        __delay_cycles(100);
+    }
+
+    return temp/50;
+
 }
 
-// Displays the corresponding passed in digital value to a 7-segment display.
-// Selects the 7-segment to drive based on passed value 0-3.
+// Displays the corresponding passed in digit 0-9 to a 7-segment display.
+// Selects the 7-segment to drive based on passed select value 0-3.
  unsigned short display7Seg(unsigned int segValue, unsigned short select) {
 
     P2OUT |= 0xFF; // Flush the current bits.
@@ -171,9 +188,11 @@ unsigned int readAnalog() {
     return 0;
 }
 
-void parseInt(unsigned int ADCValue, unsigned short* splitValue){
+void parseADC(unsigned int ADCValue, unsigned short* splitValue){
     splitValue[0] = ADCValue % 10;
     splitValue[1] = (ADCValue / 10) % 10;
     splitValue[2] = (ADCValue/100) % 10;
     splitValue[3] = (ADCValue/1000) % 10;
 }
+
+
