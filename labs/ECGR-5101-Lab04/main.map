@@ -1,61 +1,61 @@
 Archive member included to satisfy reference by file (symbol)
 
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+/opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
                               main.o (__mspabi_divu)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
+/opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
                               main.o (__mspabi_func_epilog_4)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+/opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
                               main.o (__mspabi_srai_15)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
+/opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
                               main.o (__crt0_init_bss)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
-                              /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o (__crt0_call_main)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
-                              /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o) (memset)
+/opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
+                              /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o (__crt0_call_main)
+/opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
+                              /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o) (memset)
 
 Discarded input sections
 
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
- .comment       0x0000000000000000       0x3a /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
+ .text          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
+ .text          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
+ .comment       0x0000000000000000       0x3a /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
  .data          0x0000000000000000        0x0 main.o
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+ .text          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
  .text.__divhi3
-                0x0000000000000000       0x30 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x0000000000000000       0x30 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
  .text.__modhi3
-                0x0000000000000000       0x3e /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+                0x0000000000000000       0x3e /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
+ .text          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
  .text.__mspabi_srai
-                0x0000000000000000        0xa /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+                0x0000000000000000        0xa /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
  .text.__mspabi_sral_n
-                0x0000000000000000       0x3e /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+                0x0000000000000000       0x3e /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
  .text.__mspabi_sral
-                0x0000000000000000        0xc /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+                0x0000000000000000        0xc /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
  .text.__mspabi_srall
-                0x0000000000000000       0x1e /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
- .comment       0x0000000000000000       0x3a /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
+                0x0000000000000000       0x1e /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+ .text          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
+ .text          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
+ .text          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
+ .text          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
+ .data          0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
+ .bss           0x0000000000000000        0x0 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
+ .comment       0x0000000000000000       0x3a /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
 
 Memory Configuration
 
@@ -89,16 +89,16 @@ RESETVEC         0x000000000000fffe 0x0000000000000002
 
 Linker script and memory map
 
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
 LOAD main.o
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a
 START GROUP
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libmul_none.a
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libnosys.a
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libmul_none.a
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libnosys.a
 END GROUP
 
 .bslsignature
@@ -165,7 +165,7 @@ __reset_vector  0x000000000000fffe        0x2
  *(__interrupt_vector_16)
  *(__interrupt_vector_reset)
  *(.resetvec)
- .resetvec      0x000000000000fffe        0x2 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
+ .resetvec      0x000000000000fffe        0x2 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
 
 .rodata         0x000000000000c000        0x0
                 0x000000000000c000                . = ALIGN (0x2)
@@ -207,13 +207,13 @@ __reset_vector  0x000000000000fffe        0x2
                 0x000000000000c000                PROVIDE (_start = .)
  *(SORT_BY_NAME(.crt_*))
  .crt_0000start
-                0x000000000000c000        0x4 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
+                0x000000000000c000        0x4 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
                 0x000000000000c000                __crt0_start
  .crt_0100init_bss
-                0x000000000000c004        0xe /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
+                0x000000000000c004        0xe /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
                 0x000000000000c004                __crt0_init_bss
  .crt_0800call_main
-                0x000000000000c012        0x6 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
+                0x000000000000c012        0x6 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
                 0x000000000000c012                __crt0_call_main
  *(.lowtext .text .stub .text.* .gnu.linkonce.t.* .text:*)
  .text          0x000000000000c018      0x2a8 main.o
@@ -223,15 +223,15 @@ __reset_vector  0x000000000000fffe        0x2
                 0x000000000000c12c                parseADC
                 0x000000000000c182                main
  .text.udivmodhi4
-                0x000000000000c2c0       0x3c /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x000000000000c2c0       0x3c /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
                 0x000000000000c2c0                udivmodhi4
  .text.__udivhi3
-                0x000000000000c2fc        0x8 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x000000000000c2fc        0x8 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
                 0x000000000000c2fc                __mspabi_divu
  .text.__umodhi3
-                0x000000000000c304        0x8 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x000000000000c304        0x8 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
                 0x000000000000c304                __mspabi_remu
- .text          0x000000000000c30c       0x10 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
+ .text          0x000000000000c30c       0x10 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
                 0x000000000000c30c                __mspabi_func_epilog_7
                 0x000000000000c30e                __mspabi_func_epilog_6
                 0x000000000000c310                __mspabi_func_epilog_5
@@ -240,7 +240,7 @@ __reset_vector  0x000000000000fffe        0x2
                 0x000000000000c316                __mspabi_func_epilog_2
                 0x000000000000c318                __mspabi_func_epilog_1
  .text.__mspabi_srai_n
-                0x000000000000c31c       0x20 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+                0x000000000000c31c       0x20 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
                 0x000000000000c31c                __mspabi_srai_15
                 0x000000000000c31e                __mspabi_srai_14
                 0x000000000000c320                __mspabi_srai_13
@@ -256,7 +256,7 @@ __reset_vector  0x000000000000fffe        0x2
                 0x000000000000c334                __mspabi_srai_3
                 0x000000000000c336                __mspabi_srai_2
                 0x000000000000c338                __mspabi_srai_1
- .text.memset   0x000000000000c33c       0x12 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
+ .text.memset   0x000000000000c33c       0x12 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
                 0x000000000000c33c                memset
  *(.text.*personality*)
  *(.gnu.warning)
@@ -339,25 +339,25 @@ __reset_vector  0x000000000000fffe        0x2
                 0x0000000000000000       0x17
  *(.MSP430.attributes)
  .MSP430.attributes
-                0x0000000000000000       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
+                0x0000000000000000       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o
  .MSP430.attributes
-                0x0000000000000017       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
+                0x0000000000000017       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
  .MSP430.attributes
                 0x000000000000002e       0x17 main.o
  .MSP430.attributes
-                0x0000000000000045       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x0000000000000045       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
  .MSP430.attributes
-                0x000000000000005c       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
+                0x000000000000005c       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
  .MSP430.attributes
-                0x0000000000000073       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+                0x0000000000000073       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
  .MSP430.attributes
-                0x000000000000008a       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
+                0x000000000000008a       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
  .MSP430.attributes
-                0x00000000000000a1       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
+                0x00000000000000a1       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
  .MSP430.attributes
-                0x00000000000000b8       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
+                0x00000000000000b8       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
  .MSP430.attributes
-                0x00000000000000cf       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
+                0x00000000000000cf       0x17 /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
  *(.gnu.attributes)
  *(__TI_build_attributes)
 
@@ -383,8 +383,8 @@ __reset_vector  0x000000000000fffe        0x2
  *(.comment)
  .comment       0x0000000000000000       0x39 main.o
                                          0x3a (size before relaxing)
- .comment       0x0000000000000039       0x3a /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .comment       0x0000000000000039       0x3a /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
+ .comment       0x0000000000000039       0x3a /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+ .comment       0x0000000000000039       0x3a /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
 
 .debug
  *(.debug)
@@ -414,18 +414,18 @@ __reset_vector  0x000000000000fffe        0x2
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x2ad main.o
 
-.debug_line     0x0000000000000000      0x710
+.debug_line     0x0000000000000000      0x6d8
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x710 main.o
+ .debug_line    0x0000000000000000      0x6d8 main.o
 
 .debug_frame    0x0000000000000000       0xc0
  *(.debug_frame)
  .debug_frame   0x0000000000000000       0xc0 main.o
 
-.debug_str      0x0000000000000000      0x891
+.debug_str      0x0000000000000000      0x87e
  *(.debug_str)
- .debug_str     0x0000000000000000      0x891 main.o
-                                        0x8fa (size before relaxing)
+ .debug_str     0x0000000000000000      0x87e main.o
+                                        0x8e7 (size before relaxing)
 
 .debug_loc      0x0000000000000000       0xf4
  *(.debug_loc)
@@ -555,7 +555,7 @@ __reset_vector  0x000000000000fffe        0x2
                 [!provide]                        PROVIDE (TLV_DCO_30_LEN = 0x10f7)
                 [!provide]                        PROVIDE (TLV_ADC10_1_TAG = 0x10da)
                 [!provide]                        PROVIDE (TLV_ADC10_1_LEN = 0x10db)
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
-LOAD /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
+LOAD /opt/ti/msp430/gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a
 OUTPUT(MSP430G2553.out elf32-msp430)

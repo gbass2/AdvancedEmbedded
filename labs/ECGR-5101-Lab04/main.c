@@ -74,7 +74,7 @@ int main(void)
 
         if(ADCValue < threashold)
             ADCValue = 0;
-        else if(ADCValue > (1023-threashold-2))
+        else if(ADCValue > (1023-threashold-1))
             ADCValue = 1023;
 
         // Splits the adc value into 4 separate integers based on place-value.
@@ -89,13 +89,13 @@ int main(void)
             display7Seg(splitValue[2], 2); // Display the digit/char associated with the digital value.
             __delay_cycles(1600);
             display7Seg(splitValue[3], 3); // Display the digit/char associated with the digital value.
-        } else if(ADCValue <  999 && ADCValue > 99) {
+        } else if(ADCValue <= 999 && ADCValue > 99) {
             display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
             __delay_cycles(1600);
             display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
             __delay_cycles(1600);
             display7Seg(splitValue[2], 2); // Display the digit/char associated with the digital value.
-        } else if(ADCValue <  99 && ADCValue > 9) {
+        } else if(ADCValue <=  99 && ADCValue >= 9) {
             display7Seg(splitValue[0], 0); // Display the digit/char associated with the digital value.
             __delay_cycles(1600);
             display7Seg(splitValue[1], 1); // Display the digit/char associated with the digital value.
