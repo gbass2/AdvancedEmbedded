@@ -193,7 +193,7 @@ __reset_vector  0x000000000000fffe        0x2
  *(SORT_BY_NAME(.dtors.*))
  *(.dtors)
 
-.text           0x000000000000c000      0x328
+.text           0x000000000000c000      0x36a
                 0x000000000000c000                . = ALIGN (0x2)
                 0x000000000000c000                PROVIDE (_start = .)
  *(SORT_BY_NAME(.crt_*))
@@ -204,58 +204,58 @@ __reset_vector  0x000000000000fffe        0x2
                 0x000000000000c004        0x6 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
                 0x000000000000c004                __crt0_call_main
  *(.lowtext .text .stub .text.* .gnu.linkonce.t.* .text:*)
- .text          0x000000000000c00a      0x2a2 main.o
+ .text          0x000000000000c00a      0x2e4 main.o
                 0x000000000000c00a                setupADC
                 0x000000000000c026                readAnalog
-                0x000000000000c056                display7Seg
-                0x000000000000c11e                parseADC
-                0x000000000000c174                main
+                0x000000000000c098                display7Seg
+                0x000000000000c160                parseADC
+                0x000000000000c1b6                main
  .text.udivmodhi4
-                0x000000000000c2ac       0x3c /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
-                0x000000000000c2ac                udivmodhi4
+                0x000000000000c2ee       0x3c /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x000000000000c2ee                udivmodhi4
  .text.__udivhi3
-                0x000000000000c2e8        0x8 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
-                0x000000000000c2e8                __mspabi_divu
+                0x000000000000c32a        0x8 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x000000000000c32a                __mspabi_divu
  .text.__umodhi3
-                0x000000000000c2f0        0x8 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
-                0x000000000000c2f0                __mspabi_remu
- .text          0x000000000000c2f8       0x10 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
-                0x000000000000c2f8                __mspabi_func_epilog_7
-                0x000000000000c2fa                __mspabi_func_epilog_6
-                0x000000000000c2fc                __mspabi_func_epilog_5
-                0x000000000000c2fe                __mspabi_func_epilog_4
-                0x000000000000c300                __mspabi_func_epilog_3
-                0x000000000000c302                __mspabi_func_epilog_2
-                0x000000000000c304                __mspabi_func_epilog_1
+                0x000000000000c332        0x8 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x000000000000c332                __mspabi_remu
+ .text          0x000000000000c33a       0x10 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
+                0x000000000000c33a                __mspabi_func_epilog_7
+                0x000000000000c33c                __mspabi_func_epilog_6
+                0x000000000000c33e                __mspabi_func_epilog_5
+                0x000000000000c340                __mspabi_func_epilog_4
+                0x000000000000c342                __mspabi_func_epilog_3
+                0x000000000000c344                __mspabi_func_epilog_2
+                0x000000000000c346                __mspabi_func_epilog_1
  .text.__mspabi_srai_n
-                0x000000000000c308       0x20 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
-                0x000000000000c308                __mspabi_srai_15
-                0x000000000000c30a                __mspabi_srai_14
-                0x000000000000c30c                __mspabi_srai_13
-                0x000000000000c30e                __mspabi_srai_12
-                0x000000000000c310                __mspabi_srai_11
-                0x000000000000c312                __mspabi_srai_10
-                0x000000000000c314                __mspabi_srai_9
-                0x000000000000c316                __mspabi_srai_8
-                0x000000000000c318                __mspabi_srai_7
-                0x000000000000c31a                __mspabi_srai_6
-                0x000000000000c31c                __mspabi_srai_5
-                0x000000000000c31e                __mspabi_srai_4
-                0x000000000000c320                __mspabi_srai_3
-                0x000000000000c322                __mspabi_srai_2
-                0x000000000000c324                __mspabi_srai_1
+                0x000000000000c34a       0x20 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+                0x000000000000c34a                __mspabi_srai_15
+                0x000000000000c34c                __mspabi_srai_14
+                0x000000000000c34e                __mspabi_srai_13
+                0x000000000000c350                __mspabi_srai_12
+                0x000000000000c352                __mspabi_srai_11
+                0x000000000000c354                __mspabi_srai_10
+                0x000000000000c356                __mspabi_srai_9
+                0x000000000000c358                __mspabi_srai_8
+                0x000000000000c35a                __mspabi_srai_7
+                0x000000000000c35c                __mspabi_srai_6
+                0x000000000000c35e                __mspabi_srai_5
+                0x000000000000c360                __mspabi_srai_4
+                0x000000000000c362                __mspabi_srai_3
+                0x000000000000c364                __mspabi_srai_2
+                0x000000000000c366                __mspabi_srai_1
  *(.text.*personality*)
  *(.gnu.warning)
  *(.interp .hash .dynsym .dynstr .gnu.version*)
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
-                0x000000000000c328                . = ALIGN (0x2)
+                0x000000000000c36a                . = ALIGN (0x2)
  *(.init)
  *(.fini)
  *(.tm_clone_table)
 
-.data           0x0000000000000200        0x0 load address 0x000000000000c328
+.data           0x0000000000000200        0x0 load address 0x000000000000c36a
                 0x0000000000000200                . = ALIGN (0x2)
                 [!provide]                        PROVIDE (__datastart = .)
  *(.jcr)
@@ -276,7 +276,7 @@ __reset_vector  0x000000000000fffe        0x2
                 [!provide]                        PROVIDE (__romdatastart = LOADADDR (.data))
                 [!provide]                        PROVIDE (__romdatacopysize = SIZEOF (.data))
 
-.bss            0x0000000000000200        0x0 load address 0x000000000000c328
+.bss            0x0000000000000200        0x0 load address 0x000000000000c36a
                 0x0000000000000200                . = ALIGN (0x2)
                 [!provide]                        PROVIDE (__bssstart = .)
  *(.dynbss)
@@ -287,7 +287,7 @@ __reset_vector  0x000000000000fffe        0x2
                 [!provide]                        PROVIDE (__bssend = .)
                 [!provide]                        PROVIDE (__bsssize = SIZEOF (.bss))
 
-.noinit         0x0000000000000200        0x0 load address 0x000000000000c328
+.noinit         0x0000000000000200        0x0 load address 0x000000000000c36a
                 0x0000000000000200                . = ALIGN (0x2)
                 [!provide]                        PROVIDE (__noinit_start = .)
  *(.noinit)
@@ -295,7 +295,7 @@ __reset_vector  0x000000000000fffe        0x2
                 [!provide]                        PROVIDE (__noinit_end = .)
                 0x0000000000000200                end = .
 
-.heap           0x0000000000000200        0x4 load address 0x000000000000c328
+.heap           0x0000000000000200        0x4 load address 0x000000000000c36a
                 0x0000000000000200                . = ALIGN (0x2)
                 0x0000000000000200                __heap_start__ = .
                 0x0000000000000200                _end = __heap_start__
@@ -385,30 +385,30 @@ __reset_vector  0x000000000000fffe        0x2
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x1052
+.debug_info     0x0000000000000000     0x1072
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x1052 main.o
+ .debug_info    0x0000000000000000     0x1072 main.o
 
 .debug_abbrev   0x0000000000000000      0x29a
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x29a main.o
 
-.debug_line     0x0000000000000000      0x704
+.debug_line     0x0000000000000000      0x7b2
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x704 main.o
+ .debug_line    0x0000000000000000      0x7b2 main.o
 
-.debug_frame    0x0000000000000000       0xc0
+.debug_frame    0x0000000000000000       0xec
  *(.debug_frame)
- .debug_frame   0x0000000000000000       0xc0 main.o
+ .debug_frame   0x0000000000000000       0xec main.o
 
-.debug_str      0x0000000000000000      0x88b
+.debug_str      0x0000000000000000      0x89f
  *(.debug_str)
- .debug_str     0x0000000000000000      0x88b main.o
-                                        0x8f4 (size before relaxing)
+ .debug_str     0x0000000000000000      0x89f main.o
+                                        0x908 (size before relaxing)
 
-.debug_loc      0x0000000000000000      0x113
+.debug_loc      0x0000000000000000      0x148
  *(.debug_loc)
- .debug_loc     0x0000000000000000      0x113 main.o
+ .debug_loc     0x0000000000000000      0x148 main.o
 
 .debug_macinfo
  *(.debug_macinfo)

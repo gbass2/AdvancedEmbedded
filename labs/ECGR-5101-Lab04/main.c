@@ -2,11 +2,17 @@
 #include <stdlib.h>
 
 /************************************************************************************
- * main.c
+ * Grayson Bass, Sam Xu             ** Lab 04 **              ** 09/22/2022 **
  * 09/22/2022
- * Grayson Bass, Sam Xu
- * ECGR 5101 Lab 03
- * Displays 0-1023 using 4 7-segment display based on the input value from a potentiometer.
+ * ECGR 5101 Advanced Embedded Lab 04
+ * Equipment and Software:
+ *      - MSP430G2553
+ *      - LDQ-M3604RI 7-Segement display
+ *      - 10k Potentiometer
+ *      - Code Composer Studio
+ * Description: 
+ *      Displays 0-1023 using 4 7-segment display based 
+ *      on the input value from a potentiometer.
  ************************************************************************************/
 
 // Define the hex values needed to display each digit or character on the 7-segment.
@@ -52,21 +58,21 @@ int main(void)
     unsigned int adcValue = 0;      // Holds the current adc value for A0.
     unsigned short splitValue[4];   // Holds each place-value of the adc value in separate integers.
     unsigned int prevValue = 0;     // Holds the previous adc value
-    unsigned short threshold = 3;  // threshold to prevent oscillation. 
+    unsigned short threshold = 2;  // threshold to prevent oscillation. 
 
     while(1) {
         adcValue = readAnalog();    // Get the digital value
 
-        // If the current adc value - previous adc value is less than 3 then don't update the value to be displayed.
+        // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
         if(abs(adcValue - prevValue) < threshold)  {
             adcValue = prevValue;
         } 
 
         // If previous adc value is to be ie kept then the values on both ends of the extreme cannot be reached.
-        // So, if they are close to the beginning or end then show 1023 or 0.a
+        // So, if they are close to the beginning or end then show 1023 or 0.
         if(adcValue < threshold)
             adcValue = 0;
-        else if(adcValue > (1023-threshold))
+        else if(adcValue >= (1023-threshold))
             adcValue = 1023;
 
         // Splits the adc value into 4 separate integers based on place-value.
@@ -104,10 +110,10 @@ int main(void)
 }
 
 /************************************************************************************
- * Name:        SetupADC
+ * Function Name:                   ** SetupADC **
  * Description: Sets up the adc channel and pin A0
- * Accepts:     None
- * Returns:     None
+ * Input:       No Input
+ * Return:      Void
  ************************************************************************************/
 
 void setupADC() {
@@ -124,14 +130,17 @@ void setupADC() {
 }
 
 /************************************************************************************
- * Name:        readAnalog
+ * Function Name:                 ** readAnalog **        
  * Description: Samples the A0 analog pin and returns the digital value.
- * Accepts:     None
- * Returns:     An integer holding the adc value of pin A0.
+ *              Sampling into 2 separate variable due to integer limit.
+ * Input:       No Input
+ * Returns:     Unsigned int
  ************************************************************************************/
 unsigned int readAnalog() {
     unsigned short i;
-    unsigned int adcValue = 0;
+    unsigned int adcValue1 = 0;
+    unsigned int adcValue2 = 0;
+
 
     // Sample the adc value 50 times.
     for(i=0; i<50; i++) {
@@ -140,21 +149,35 @@ unsigned int readAnalog() {
         ADC10CTL0 |= ENC + ADC10SC;
 
         
-        adcValue += ADC10MEM;
-        __delay_cycles(100);
+        adcValue1 += ADC10MEM;
+        __delay_cycles(50);
     }
 
-    return adcValue/50; // Return the average of the values.
+    // Sample the adc value 50 times.
+    for(i=0; i<50; i++) {
+
+        // Sampling and conversion start.
+        ADC10CTL0 |= ENC + ADC10SC;
+
+        
+        adcValue2 += ADC10MEM;
+        __delay_cycles(50);
+    }
+
+    adcValue1 = adcValue1 / 50; // Average adcValue1 variable.
+    adcValue2 = adcValue2 / 50; // Average adcValue2 variable.
+ 
+    return (adcValue1 + adcValue2) / 2; // Return the average of adcValue1 and adcValue2.
 
 }
 
 /************************************************************************************
- * Name:        display7Seg
+ * Function Name:                 ** display7Seg **
  * Description: Displays the corresponding passed in digit 0-9 to a 7-segment display.
  *              Selects the 7-segment to drive based on passed select value 0-3.
- * Accepts:     An integer value to be displayed on the 7-segment.
- *              An integer value to select which display to drive.
- * Returns:     An integer holding the adc value of pin A0.
+ * Input:       Unsigned short segValue, unisgned short select.
+ *         
+ * Returns:     unsigned short
  ************************************************************************************/
  unsigned short display7Seg(unsigned short segValue, unsigned short select) {
 
@@ -166,7 +189,7 @@ unsigned int readAnalog() {
         return 0;
     }
 
-    // Set the 7-segment display the digit will be displayed
+    // Set the 7-segment display the digit will be displayed too.
     if(select == 0)
         P1OUT = BIT1;
     else if(select == 1)
@@ -204,13 +227,12 @@ unsigned int readAnalog() {
 }
 
 /************************************************************************************
- * Name:        parseADC
+ * Function Name:                  ** parseADC **
  * Description: Takes a integer (0-1023) and splits it into 
  *              4 integers by its place-value.
- *              
- * Accepts:     An integer (0-1023)
- *              An array of integers size 4 to store the split values.
- * Returns:     None
+ * Input:       Unsigned int
+ *              Unsigned* short
+ * Returns:     Void
  ************************************************************************************/
 void parseADC(unsigned int adcValue, unsigned short* splitValue){
     splitValue[0] = adcValue % 10;          // 1's place.
