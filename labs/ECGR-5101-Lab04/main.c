@@ -52,21 +52,21 @@ int main(void)
     unsigned int adcValue = 0;      // Holds the current adc value for A0.
     unsigned short splitValue[4];   // Holds each place-value of the adc value in separate integers.
     unsigned int prevValue = 0;     // Holds the previous adc value
-    unsigned short threashold = 3;  // Threashold to prevent oscillation. 
+    unsigned short threshold = 3;  // threshold to prevent oscillation. 
 
     while(1) {
         adcValue = readAnalog();    // Get the digital value
 
         // If the current adc value - previous adc value is less than 3 then don't update the value to be displayed.
-        if(abs(adcValue - prevValue) < threashold)  {
+        if(abs(adcValue - prevValue) < threshold)  {
             adcValue = prevValue;
         } 
 
         // If previous adc value is to be ie kept then the values on both ends of the extreme cannot be reached.
         // So, if they are close to the beginning or end then show 1023 or 0.a
-        if(adcValue < threashold)
+        if(adcValue < threshold)
             adcValue = 0;
-        else if(adcValue > (1023-threashold))
+        else if(adcValue > (1023-threshold))
             adcValue = 1023;
 
         // Splits the adc value into 4 separate integers based on place-value.
