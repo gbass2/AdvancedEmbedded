@@ -32,16 +32,21 @@ unsigned int readAnalog(unsigned short);                          // Returns a 1
 unsigned short displayOne7Seg(unsigned char, unsigned short);     // Drives the pins to display a passed in int (0-9) to one 7-segment display.
 void display7Seg(unsigned char*, unsigned int, unsigned short);   // Displays the corresponding passed in digits to all 4 7-segment display.
 void parseADC(unsigned int, unsigned char*);                      // Splits the adc value into 4 separate integers based on place-value.
+void initTimer_A();                                               // Initialize timer A.
 
 #define ACC_X BIT5 // Define 1.5 to be the pin connected to the accelerameter x axis.
 #define ACC_Y BIT6 // Define 1.6 to be the pin connected to the accelerameter y axis.
 #define ACC_Z BIT7 // Define 1.7 to be the pin connected to the accelerameter z axis.
 
-unsigned int adc[3]; // Holds the adc values for x,y,z axis of accelerameter. Used for multiple sample and conversion.
+#define AXIS_DELAY_MS 3000 // Delay for 3 seconds. 
+
+unsigned int adc[3];            // Holds the adc values for x,y,z axis of accelerameter. Used for multiple sample and conversion.
+unsigned short axis = 1;        // axis x=1, y=2, z=3. axis x by default.
+unsigned int OFCount = 0;       // Counter will be compared to AXIS_DELAY_MS.
 
 int main(void)
 {
-    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
+    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer AXIS_DELAY_MS. When =, then delay has been met.
 
     // Setup 7-segment pins.
     // Set all port 2 pins to outputs.
@@ -55,26 +60,25 @@ int main(void)
     P1DIR |= 0x1E;
     P1OUT |= 0xFF;
 
-     __enable_interrupt();
+     __enable_interrupt(); // Enable interrupts.
 
     unsigned int adcValue = 0;      // Holds the current adc value for A0.
     unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned int prevValue = 0;     // Holds the previous adc value
     unsigned short threshold = 3;   // threshold to prevent oscillation. 
-    unsigned short axis = 1;        // axis x=1, y=2, z=3. axis x by default.
     
     // Setup adc pins.
     setupADC();
 
     while(1) {
+
         // Read adc.
-        if(axis == 1) {
+        if(axis == 1)
             adcValue = readAnalog(5);    // Get the digital value for x axis connected to pin 1.5.
-        } else if (axis == 2) { 
+        else if (axis == 2)
             adcValue = readAnalog(6);    // Get the digital value for y axis connected to pin 1.6.
-        } else if (axis == 3) { 
+        else if (axis == 3)
             adcValue = readAnalog(7);    // Get the digital value for z axis connected to pin 1.7.
-        }
 
         // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
         if(abs(adcValue - prevValue) < threshold)  {
@@ -155,7 +159,6 @@ unsigned int readAnalog(unsigned short select) {
         __delay_cycles(50);
     }
 
-   
     return adcValue/ 40; // Return the average of adcValue1 and adcValue2.
 
 }
@@ -290,4 +293,40 @@ void parseADC(unsigned int adcValue, unsigned char* digits){
     digits[1] = (adcValue / 10) % 10;   // 10's place.
     digits[2] = (adcValue/100) % 10;    // 100's palce.
     digits[3] = (adcValue/1000) % 10;   // 1000's plce.
+}
+
+/************************************************************************************
+ * Function Name:                  ** initTimerA **
+ * Description: Initialize timer A.
+ * Input:       No Input
+ * Returns:     Void
+ ************************************************************************************/
+void initTimer_A(void) {
+    // Timer Configuration
+    TACCR0 = 0; // Initially, Stop the Timer
+    TACCTL0 |= CCIE; // Enable interrupt for CCR0.
+    TACTL = TASSEL_2 + ID_0 + MC_1; // Select SMCLK, SMCLK/1 , Up Mode
+    TACCR0 = 100-1; // Start Timer, Compare value for Up Mode to get to 1ms.
+}
+
+
+/************************************************************************************
+ * Function Name:              ** Timer_A_CCR0_ISR **
+ * Description: Runs when when timer = CCR0
+ * Input:       No Input
+ * Returns:     Void
+ ************************************************************************************/
+#pragma vector = TIMER0_A0_VECTOR
+__interrupt void Timer_A_CCR0_ISR(void) {
+    OFCount++;
+    // Check to see if time has been met.
+    if(OFCount == AXIS_DELAY_MS) {
+        // Set the axis to be displayed based on previous set axis.
+        if(axis == 1)
+            axis = 2;
+        else if(axis == 2)
+            axis = 3;
+        else if(axis == 3)
+            axis = 1;
+    }
 }
