@@ -38,7 +38,7 @@ void initTimer_A();                                               // Initialize 
 #define ACC_Y BIT6 // Define 1.6 to be the pin connected to the accelerameter y axis.
 #define ACC_Z BIT7 // Define 1.7 to be the pin connected to the accelerameter z axis.
 
-#define AXIS_DELAY_MS 3000 // Delay for 3 seconds. 
+#define AXIS_DELAY_MS 30000 // Delay for 3 seconds. 
 
 unsigned int adc[3];            // Holds the adc values for x,y,z axis of accelerameter. Used for multiple sample and conversion.
 unsigned short axis = 1;        // axis x=1, y=2, z=3. axis x by default.
@@ -46,6 +46,8 @@ unsigned int OFCount = 0;       // Counter will be compared to AXIS_DELAY_MS.
 
 int main(void)
 {
+    initTimer_A();
+
     WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer AXIS_DELAY_MS. When =, then delay has been met.
 
     // Setup 7-segment pins.
@@ -101,6 +103,7 @@ int main(void)
         display7Seg(digits, adcValue, axis);
 
         prevValue = adcValue; // Set the previous adc value to the current.
+        OFCount;
     }
 
     return 0;
@@ -322,6 +325,7 @@ __interrupt void Timer_A_CCR0_ISR(void) {
     // Check to see if time has been met.
     if(OFCount == AXIS_DELAY_MS) {
         // Set the axis to be displayed based on previous set axis.
+        OFCount = 0;
         if(axis == 1)
             axis = 2;
         else if(axis == 2)
