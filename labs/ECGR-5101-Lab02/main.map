@@ -1,19 +1,9 @@
 Archive member included to satisfy reference by file (symbol)
 
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
-                              main.o (__mspabi_divu)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
-                              main.o (__mspabi_func_epilog_4)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
-                              main.o (__mspabi_srai_15)
 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
                               main.o (__crt0_init_bss)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_movedata.o)
-                              main.o (__crt0_movedata)
 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
                               /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/crt0.o (__crt0_call_main)
-/Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memmove.o)
-                              /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_movedata.o) (memmove)
 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
                               /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o) (memset)
 
@@ -26,38 +16,13 @@ Discarded input sections
  .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
  .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
  .comment       0x0000000000000000       0x3a /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtbegin_no_eh.o
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .text.__divhi3
-                0x0000000000000000       0x30 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .text.__modhi3
-                0x0000000000000000       0x3e /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .text.__mspabi_srai
-                0x0000000000000000        0xa /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .text.__mspabi_sral_n
-                0x0000000000000000       0x3e /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .text.__mspabi_sral
-                0x0000000000000000        0xc /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
- .text.__mspabi_srall
-                0x0000000000000000       0x1e /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+ .data          0x0000000000000000        0x0 main.o
  .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
  .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
  .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_movedata.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_movedata.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_movedata.o)
  .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
  .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
  .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
- .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memmove.o)
- .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memmove.o)
- .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memmove.o)
  .text          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
  .data          0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
  .bss           0x0000000000000000        0x0 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
@@ -211,7 +176,7 @@ __reset_vector  0x000000000000fffe        0x2
  *(SORT_BY_NAME(.dtors.*))
  *(.dtors)
 
-.text           0x000000000000c000      0x526
+.text           0x000000000000c000      0x118
                 0x000000000000c000                . = ALIGN (0x2)
                 0x000000000000c000                PROVIDE (_start = .)
  *(SORT_BY_NAME(.crt_*))
@@ -221,127 +186,81 @@ __reset_vector  0x000000000000fffe        0x2
  .crt_0100init_bss
                 0x000000000000c004        0xe /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
                 0x000000000000c004                __crt0_init_bss
- .crt_0300movedata
-                0x000000000000c012       0x14 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_movedata.o)
-                0x000000000000c012                __crt0_movedata
  .crt_0800call_main
-                0x000000000000c026        0x6 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
-                0x000000000000c026                __crt0_call_main
+                0x000000000000c012        0x6 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
+                0x000000000000c012                __crt0_call_main
  *(.lowtext .text .stub .text.* .gnu.linkonce.t.* .text:*)
- .text          0x000000000000c02c      0x430 main.o
-                0x000000000000c02c                setupADC
-                0x000000000000c05e                readAnalog
-                0x000000000000c0c0                displayOne7Seg
-                0x000000000000c1a0                display7Seg
-                0x000000000000c2ee                parseADC
-                0x000000000000c344                initTimer_A
-                0x000000000000c35c                main
-                0x000000000000c41c                Timer_A_CCR0_ISR
- .text.udivmodhi4
-                0x000000000000c45c       0x3c /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
-                0x000000000000c45c                udivmodhi4
- .text.__udivhi3
-                0x000000000000c498        0x8 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
-                0x000000000000c498                __mspabi_divu
- .text.__umodhi3
-                0x000000000000c4a0        0x8 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
-                0x000000000000c4a0                __mspabi_remu
- .text          0x000000000000c4a8       0x10 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
-                0x000000000000c4a8                __mspabi_func_epilog_7
-                0x000000000000c4aa                __mspabi_func_epilog_6
-                0x000000000000c4ac                __mspabi_func_epilog_5
-                0x000000000000c4ae                __mspabi_func_epilog_4
-                0x000000000000c4b0                __mspabi_func_epilog_3
-                0x000000000000c4b2                __mspabi_func_epilog_2
-                0x000000000000c4b4                __mspabi_func_epilog_1
- .text.__mspabi_srai_n
-                0x000000000000c4b8       0x20 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
-                0x000000000000c4b8                __mspabi_srai_15
-                0x000000000000c4ba                __mspabi_srai_14
-                0x000000000000c4bc                __mspabi_srai_13
-                0x000000000000c4be                __mspabi_srai_12
-                0x000000000000c4c0                __mspabi_srai_11
-                0x000000000000c4c2                __mspabi_srai_10
-                0x000000000000c4c4                __mspabi_srai_9
-                0x000000000000c4c6                __mspabi_srai_8
-                0x000000000000c4c8                __mspabi_srai_7
-                0x000000000000c4ca                __mspabi_srai_6
-                0x000000000000c4cc                __mspabi_srai_5
-                0x000000000000c4ce                __mspabi_srai_4
-                0x000000000000c4d0                __mspabi_srai_3
-                0x000000000000c4d2                __mspabi_srai_2
-                0x000000000000c4d4                __mspabi_srai_1
- .text.memmove  0x000000000000c4d8       0x3c /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memmove.o)
-                0x000000000000c4d8                memmove
- .text.memset   0x000000000000c514       0x12 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
-                0x000000000000c514                memset
+ .text          0x000000000000c018       0xee main.o
+                0x000000000000c018                main
+                0x000000000000c066                P1_Function
+                0x000000000000c092                TMR0
+ .text.memset   0x000000000000c106       0x12 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
+                0x000000000000c106                memset
  *(.text.*personality*)
  *(.gnu.warning)
  *(.interp .hash .dynsym .dynstr .gnu.version*)
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
-                0x000000000000c526                . = ALIGN (0x2)
+                0x000000000000c118                . = ALIGN (0x2)
  *(.init)
  *(.fini)
  *(.tm_clone_table)
 
-.data           0x0000000000000200        0x2 load address 0x000000000000c526
+.data           0x0000000000000200        0x0 load address 0x000000000000c118
                 0x0000000000000200                . = ALIGN (0x2)
-                0x0000000000000200                PROVIDE (__datastart = .)
+                [!provide]                        PROVIDE (__datastart = .)
  *(.jcr)
  *(.data.rel.ro.local)
  *(.data.rel.ro*)
  *(.dynamic)
  *(.data .data.* .gnu.linkonce.d.*)
- .data          0x0000000000000200        0x2 main.o
-                0x0000000000000200                axis
  *(.gnu.linkonce.d.*personality*)
  *(.data1)
  *(.got.plt)
  *(.got)
-                0x0000000000000202                . = ALIGN (0x2)
+                0x0000000000000200                . = ALIGN (0x2)
  *(.sdata .sdata.* .gnu.linkonce.s.* D_2 D_1)
-                0x0000000000000202                . = ALIGN (0x2)
-                0x0000000000000202                _edata = .
+                0x0000000000000200                . = ALIGN (0x2)
+                0x0000000000000200                _edata = .
                 [!provide]                        PROVIDE (edata = .)
                 [!provide]                        PROVIDE (__dataend = .)
-                0x000000000000c526                PROVIDE (__romdatastart = LOADADDR (.data))
-                0x0000000000000002                PROVIDE (__romdatacopysize = SIZEOF (.data))
+                [!provide]                        PROVIDE (__romdatastart = LOADADDR (.data))
+                [!provide]                        PROVIDE (__romdatacopysize = SIZEOF (.data))
 
-.bss            0x0000000000000202        0x8 load address 0x000000000000c528
-                0x0000000000000202                . = ALIGN (0x2)
-                0x0000000000000202                PROVIDE (__bssstart = .)
+.bss            0x0000000000000200        0x4 load address 0x000000000000c118
+                0x0000000000000200                . = ALIGN (0x2)
+                0x0000000000000200                PROVIDE (__bssstart = .)
  *(.dynbss)
  *(.sbss .sbss.*)
  *(.bss .bss.* .gnu.linkonce.b.*)
- .bss           0x0000000000000202        0x8 main.o
-                0x0000000000000202                OFCount
-                0x0000000000000204                adc
-                0x000000000000020a                . = ALIGN (0x2)
+ .bss           0x0000000000000200        0x4 main.o
+                0x0000000000000200                state
+                0x0000000000000202                count
+                0x0000000000000204                . = ALIGN (0x2)
  *(COMMON)
                 [!provide]                        PROVIDE (__bssend = .)
-                0x0000000000000008                PROVIDE (__bsssize = SIZEOF (.bss))
+                0x0000000000000004                PROVIDE (__bsssize = SIZEOF (.bss))
 
-.noinit         0x000000000000020a        0x0 load address 0x000000000000c528
-                0x000000000000020a                . = ALIGN (0x2)
+.noinit         0x0000000000000204        0x0 load address 0x000000000000c118
+                0x0000000000000204                . = ALIGN (0x2)
                 [!provide]                        PROVIDE (__noinit_start = .)
  *(.noinit)
-                0x000000000000020a                . = ALIGN (0x2)
+                0x0000000000000204                . = ALIGN (0x2)
                 [!provide]                        PROVIDE (__noinit_end = .)
-                0x000000000000020a                end = .
+                0x0000000000000204                end = .
 
-.heap           0x000000000000020a        0x4 load address 0x000000000000c528
-                0x000000000000020a                . = ALIGN (0x2)
-                0x000000000000020a                __heap_start__ = .
-                0x000000000000020a                _end = __heap_start__
+.heap           0x0000000000000204        0x4 load address 0x000000000000c118
+                0x0000000000000204                . = ALIGN (0x2)
+                0x0000000000000204                __heap_start__ = .
+                0x0000000000000204                _end = __heap_start__
                 [!provide]                        PROVIDE (end = .)
  *(.heap)
-                0x000000000000020a                _end = .
+                0x0000000000000204                _end = .
                 [!provide]                        PROVIDE (end = .)
-                0x000000000000020a        0x4 LONG 0x0
-                0x000000000000020e                __heap_end__ = .
-                0x000000000000020e                __HeapLimit = __heap_end__
+                0x0000000000000204        0x4 LONG 0x0
+                0x0000000000000208                __heap_end__ = .
+                0x0000000000000208                __HeapLimit = __heap_end__
 
 .stack          0x0000000000000400        0x0
                 0x0000000000000400                PROVIDE (__stack = .)
@@ -365,23 +284,13 @@ __reset_vector  0x000000000000fffe        0x2
  .MSP430.attributes
                 0x000000000000002e       0x17 main.o
  .MSP430.attributes
-                0x0000000000000045       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
+                0x0000000000000045       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
  .MSP430.attributes
-                0x000000000000005c       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(epilogue.o)
+                0x000000000000005c       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
  .MSP430.attributes
-                0x0000000000000073       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(srai.o)
+                0x0000000000000073       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
  .MSP430.attributes
-                0x000000000000008a       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_bss.o)
- .MSP430.attributes
-                0x00000000000000a1       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_movedata.o)
- .MSP430.attributes
-                0x00000000000000b8       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libcrt.a(crt_main.o)
- .MSP430.attributes
-                0x00000000000000cf       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memmove.o)
- .MSP430.attributes
-                0x00000000000000e6       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
- .MSP430.attributes
-                0x00000000000000fd       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
+                0x000000000000008a       0x17 /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/crtend_no_eh.o
  *(.gnu.attributes)
  *(__TI_build_attributes)
 
@@ -407,8 +316,6 @@ __reset_vector  0x000000000000fffe        0x2
  *(.comment)
  .comment       0x0000000000000000       0x39 main.o
                                          0x3a (size before relaxing)
- .comment       0x0000000000000039       0x3a /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/430/libgcc.a(lib2divHI.o)
- .comment       0x0000000000000039       0x3a /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memmove.o)
  .comment       0x0000000000000039       0x3a /Users/graysonbass/ti/msp430-gcc/bin/../lib/gcc/msp430-elf/9.3.1/../../../../msp430-elf/lib/430/libc.a(lib_a-memset.o)
 
 .debug
@@ -431,30 +338,28 @@ __reset_vector  0x000000000000fffe        0x2
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x11b5
+.debug_info     0x0000000000000000      0x592
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x11b5 main.o
+ .debug_info    0x0000000000000000      0x592 main.o
 
-.debug_abbrev   0x0000000000000000      0x300
+.debug_abbrev   0x0000000000000000       0xb1
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x300 main.o
+ .debug_abbrev  0x0000000000000000       0xb1 main.o
 
-.debug_line     0x0000000000000000      0xa4e
+.debug_line     0x0000000000000000      0x2ce
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0xa4e main.o
+ .debug_line    0x0000000000000000      0x2ce main.o
 
-.debug_frame    0x0000000000000000      0x138
+.debug_frame    0x0000000000000000       0x74
  *(.debug_frame)
- .debug_frame   0x0000000000000000      0x138 main.o
+ .debug_frame   0x0000000000000000       0x74 main.o
 
-.debug_str      0x0000000000000000      0x8cd
+.debug_str      0x0000000000000000      0x420
  *(.debug_str)
- .debug_str     0x0000000000000000      0x8cd main.o
-                                        0x936 (size before relaxing)
+ .debug_str     0x0000000000000000      0x420 main.o
 
-.debug_loc      0x0000000000000000      0x212
+.debug_loc
  *(.debug_loc)
- .debug_loc     0x0000000000000000      0x212 main.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -487,12 +392,12 @@ __reset_vector  0x000000000000fffe        0x2
                 [!provide]                        PROVIDE (IE2 = 0x1)
                 [!provide]                        PROVIDE (IFG2 = 0x3)
                 [!provide]                        PROVIDE (ADC10DTC0 = 0x48)
-                0x0000000000000049                PROVIDE (ADC10DTC1 = 0x49)
-                0x000000000000004a                PROVIDE (ADC10AE0 = 0x4a)
-                0x00000000000001b0                PROVIDE (ADC10CTL0 = 0x1b0)
-                0x00000000000001b2                PROVIDE (ADC10CTL1 = 0x1b2)
+                [!provide]                        PROVIDE (ADC10DTC1 = 0x49)
+                [!provide]                        PROVIDE (ADC10AE0 = 0x4a)
+                [!provide]                        PROVIDE (ADC10CTL0 = 0x1b0)
+                [!provide]                        PROVIDE (ADC10CTL1 = 0x1b2)
                 [!provide]                        PROVIDE (ADC10MEM = 0x1b4)
-                0x00000000000001bc                PROVIDE (ADC10SA = 0x1bc)
+                [!provide]                        PROVIDE (ADC10SA = 0x1bc)
                 [!provide]                        PROVIDE (DCOCTL = 0x56)
                 [!provide]                        PROVIDE (BCSCTL1 = 0x57)
                 [!provide]                        PROVIDE (BCSCTL2 = 0x58)
@@ -503,13 +408,13 @@ __reset_vector  0x000000000000fffe        0x2
                 [!provide]                        PROVIDE (FCTL1 = 0x128)
                 [!provide]                        PROVIDE (FCTL2 = 0x12a)
                 [!provide]                        PROVIDE (FCTL3 = 0x12c)
-                [!provide]                        PROVIDE (P1IN = 0x20)
+                0x0000000000000020                PROVIDE (P1IN = 0x20)
                 0x0000000000000021                PROVIDE (P1OUT = 0x21)
                 0x0000000000000022                PROVIDE (P1DIR = 0x22)
-                [!provide]                        PROVIDE (P1IFG = 0x23)
-                [!provide]                        PROVIDE (P1IES = 0x24)
-                [!provide]                        PROVIDE (P1IE = 0x25)
-                0x0000000000000026                PROVIDE (P1SEL = 0x26)
+                0x0000000000000023                PROVIDE (P1IFG = 0x23)
+                0x0000000000000024                PROVIDE (P1IES = 0x24)
+                0x0000000000000025                PROVIDE (P1IE = 0x25)
+                [!provide]                        PROVIDE (P1SEL = 0x26)
                 [!provide]                        PROVIDE (P1SEL2 = 0x41)
                 [!provide]                        PROVIDE (P1REN = 0x27)
                 [!provide]                        PROVIDE (P2IN = 0x28)
@@ -518,7 +423,7 @@ __reset_vector  0x000000000000fffe        0x2
                 [!provide]                        PROVIDE (P2IFG = 0x2b)
                 [!provide]                        PROVIDE (P2IES = 0x2c)
                 [!provide]                        PROVIDE (P2IE = 0x2d)
-                0x000000000000002e                PROVIDE (P2SEL = 0x2e)
+                [!provide]                        PROVIDE (P2SEL = 0x2e)
                 [!provide]                        PROVIDE (P2SEL2 = 0x42)
                 [!provide]                        PROVIDE (P2REN = 0x2f)
                 [!provide]                        PROVIDE (P3IN = 0x18)
@@ -527,9 +432,9 @@ __reset_vector  0x000000000000fffe        0x2
                 [!provide]                        PROVIDE (P3SEL = 0x1b)
                 [!provide]                        PROVIDE (P3SEL2 = 0x43)
                 [!provide]                        PROVIDE (P3REN = 0x10)
-                [!provide]                        PROVIDE (TA0IV = 0x12e)
+                0x000000000000012e                PROVIDE (TA0IV = 0x12e)
                 0x0000000000000160                PROVIDE (TA0CTL = 0x160)
-                0x0000000000000162                PROVIDE (TA0CCTL0 = 0x162)
+                [!provide]                        PROVIDE (TA0CCTL0 = 0x162)
                 [!provide]                        PROVIDE (TA0CCTL1 = 0x164)
                 [!provide]                        PROVIDE (TA0CCTL2 = 0x166)
                 [!provide]                        PROVIDE (TA0R = 0x170)

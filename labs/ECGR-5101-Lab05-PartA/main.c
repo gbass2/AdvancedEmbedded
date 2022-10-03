@@ -33,7 +33,6 @@ unsigned short displayOne7Seg(unsigned char, unsigned short);     // Drives the 
 void display7Seg(unsigned char*, unsigned int, unsigned short);   // Displays the corresponding passed in digits to all 4 7-segment display.
 void parseADC(unsigned int, unsigned char*);                      // Splits the adc value into 4 separate integers based on place-value.
 void initTimer_A();                                               // Initialize timer A.
-int scaleADC();                                                  // Scale the raw adc value to -300 - 300
 
 #define ACC_X BIT5 // Define 1.5 to be the pin connected to the accelerameter x axis.
 #define ACC_Y BIT6 // Define 1.6 to be the pin connected to the accelerameter y axis.
@@ -67,12 +66,11 @@ int main(void)
     unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned int prevValue = 0;     // Holds the previous adc value
     unsigned short threshold = 3;   // threshold to prevent oscillation. 
-    int scaledVal = 0;              // Holds the scaled ADC value.
     
     // Setup adc pins.
     setupADC();
 
-    // Setup interrupts.
+    // Setup timer.
     initTimer_A();
 
     while(1) {
@@ -97,19 +95,15 @@ int main(void)
         else if(adcValue >= (1023-threshold))
             adcValue = 1023;
 
-        // Scale the adc value to -300 - 300
-        scaledVal = scaleADC(adcValue)
-
         // Splits the adc value into 4 separate integers based on place-value.
-        parseADC(scaledVal, digits); 
-        
+        parseADC(adcValue, digits); 
+
         // Display the split integers on each corresponding 7-segment dispaly.
         // Pass the adc value to check for leading zeros and not display them.
         // Pass in the decmimal point to be displayed based on axis used.
         display7Seg(digits, adcValue, axis);
 
         prevValue = adcValue; // Set the previous adc value to the current.
-        OFCount;
     }
 
     return 0;
@@ -224,7 +218,6 @@ unsigned int readAnalog(unsigned short select) {
     else if(segValue == '.')
         P2OUT &= SEG_DOT; // Display dot.
     
-
     return 0;
 }
 
@@ -330,8 +323,8 @@ __interrupt void Timer_A_CCR0_ISR(void) {
     OFCount++;
     // Check to see if time has been met.
     if(OFCount == AXIS_DELAY_MS) {
-        // Set the axis to be displayed based on previous set axis.
         OFCount = 0;
+        // Set the axis to be displayed based on previous set axis.
         if(axis == 1)
             axis = 2;
         else if(axis == 2)
@@ -339,22 +332,4 @@ __interrupt void Timer_A_CCR0_ISR(void) {
         else if(axis == 3)
             axis = 1;
     }
-}
-
-/************************************************************************************
- * Function Name:              ** scaleADC **
- * Description: Scales the raw adc value between -300 - 300.
- * Input:       int
- * Returns:     int
- ************************************************************************************/
-
-int scaleADC(int adcValue) {
-    int scaledMin = -300
-    unsigned int scaledMax = 300
-    unsigned rawMax = 1023
-    unsigned rawMin = 0
-
-    scaled = (((adcValue - rawMin)) / (rawMax - rawMin) * (scaledMax - scaledMin)) + scaledMin
-
-    return scaled
 }
