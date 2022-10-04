@@ -31,13 +31,14 @@
 #define SEG_DASH ~BIT6
 
 // Function prototypes.
-void setupADC();                                                  // Setup the adc pin connected to the potentiometer.
-unsigned int readAnalog(unsigned short);                          // Returns a 10-bit adc value.
-unsigned short displayOne7Seg(unsigned char, unsigned short);     // Drives the pins to display a passed in int (0-9) to one 7-segment display.
-void display7Seg(unsigned char*, int, unsigned short);   // Displays the corresponding passed in digits to all 4 7-segment display.
-void parseADC(unsigned int, unsigned char*);                      // Splits the adc value into 4 separate integers based on place-value.
-void initTimer_A();                                               // Initialize timer A.
-int scaleADC();                                                  // Scale the raw adc value to -300 - 300
+void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
+unsigned int readAnalog(unsigned short);                              // Returns a 10-bit adc value.
+unsigned short displayOne7Seg(unsigned char, unsigned short);         // Drives the pins to display a passed in int (0-9) to one 7-segment display.
+void displayRaw7Seg(unsigned char*, unsigned int, unsigned short);                // Displays the corresponding passed in digits to all 4 7-segment display.
+void displayScaled7Seg(unsigned char*, int, unsigned short); // Displays a scaled ADC value from -30 to 30 in Gs.
+void parseADC(unsigned int, unsigned char*);                          // Splits the adc value into 4 separate integers based on place-value.
+void initTimer_A();                                                   // Initialize timer A.
+int scaleADC();                                                       // Scale the raw adc value to -30 to 30
 
 #define ACC_X BIT5 // Define 1.5 to be the pin connected to the accelerameter x axis.
 #define ACC_Y BIT6 // Define 1.6 to be the pin connected to the accelerameter y axis.
@@ -71,7 +72,8 @@ int main(void)
     unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned int prevValue = 0;     // Holds the previous adc value
     unsigned short threshold = 3;   // threshold to prevent oscillation. 
-    int scaledVal = 0;              // Holds the scaled ADC value -300 to 300.
+    int scaledVal = 0;              // Holds the scaled ADC value -30 to 30 in Gs.
+                                    // A decimal place will be added between the place values to have -3.0 to 3.0 Gs
     
     // Setup adc pins.
     setupADC();
@@ -101,17 +103,19 @@ int main(void)
         else if(adcValue >= (1023-threshold))
             adcValue = 1023;
 
-        // Scale the adc value to -300 - 300
+        // Scale the adc value to -30 to 30 Gs.
         scaledVal = scaleADC(adcValue);
         
         // Splits the adc value into 4 separate integers based on place-value.
         // Needs a postive value passed.
+        // parseADC(adcValue, digits); 
         parseADC(abs(scaledVal), digits); 
         
         // Display the split integers on each corresponding 7-segment dispaly.
         // Pass the adc value to check for leading zeros and not display them.
         // Pass in the decmimal point to be displayed based on axis used.
-        display7Seg(digits, scaledVal, axis);
+        // displayRaw7Seg(digits, adcValue, axis);
+        // displayScaled7Seg(digits, scaledVal, axis);
 
         prevValue = adcValue; // Set the previous adc value to the current.
     }
@@ -240,15 +244,78 @@ unsigned int readAnalog(unsigned short select) {
 }
 
 /*****************************************************************************************
- * Function Name:                 ** display7Seg **
+ * Function Name:                 ** displayRaw7Seg **
  * Description: Displays the corresponding passed in digits to all 4 7-segment display.
  *              Uses the adc value to determine which 7-seg has leading zeros.
  *              Displays decmimal point based on passed value 0-4. 0 being off.
+ *              Raw value 0-1023.
+ * Input:       unsigned char *digits, unsigned int adcValue, unsigned short dotDisplay.
+ *         
+ * Returns:     void
+ *****************************************************************************************/
+void displayRaw7Seg(unsigned char* digits, unsigned int adcValue, unsigned short dotDisplayed) {
+    // Display the adc value on the 7-segments. Does not show leading zeros.
+    // Delay is added to allow the segments to have a long on period.
+    // The least significant display's digit is displayed first.
+    if(adcValue >  999) {
+        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+        displayOne7Seg(digits[2], 2); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+        displayOne7Seg(digits[3], 3); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+    } else if(adcValue <= 999 && adcValue > 99) {
+        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+        displayOne7Seg(digits[2], 2); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+    } else if(adcValue <=  99 && adcValue >= 9) {
+        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+
+    } else {
+        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
+        __delay_cycles(1600);
+    }
+
+    // Display decimal based based on passed in segment to display on.
+    switch(dotDisplayed) {
+        // Left most .
+        case 1:
+            displayOne7Seg('.', 3);
+            break;
+        // Left middle  .
+        case 2:
+            displayOne7Seg('.', 2);
+            break;
+        // Right middle  .
+        case 3:
+            displayOne7Seg('.', 1);
+            break;
+        // Right most .
+        case 4:
+            displayOne7Seg('.', 0);
+            break;
+    }
+
+}
+
+/*****************************************************************************************
+ * Function Name:                 ** displayScaled7Seg **
+ * Description: Displays the corresponding passed in digits to all 4 7-segment display.
+ *              Displays scaled value between -30 and 30 converted to Gs.
+ *              Displays decmimal point on the second display.
  * Input:       unsigned char *digits, int adcValue, unsigned short axis.
  *         
  * Returns:     void
  *****************************************************************************************/
-void display7Seg(unsigned char* digits, int adcValue, unsigned short axis) {
+void displayScaled7Seg(unsigned char* digits, int adcValue, unsigned short axis) {
     // Display dash if value is negative
     if(adcValue < 0) {
         displayOne7Seg('-', 2);
@@ -259,9 +326,9 @@ void display7Seg(unsigned char* digits, int adcValue, unsigned short axis) {
     adcValue = abs(adcValue);
 
     // Display the digit/char associated with the digital value.
-    displayOne7Seg(digits[1], 0); 
+    displayOne7Seg(digits[0], 0); 
     __delay_cycles(1000);
-    displayOne7Seg(digits[2], 1);
+    displayOne7Seg(digits[1], 1);
     __delay_cycles(1000);
     
     // Display X,Y,Z based on the axis to be displayed.
@@ -340,14 +407,16 @@ __interrupt void Timer_A_CCR0_ISR(void) {
 
 /************************************************************************************
  * Function Name:              ** scaleADC **
- * Description: Scales the raw adc value between -300 - 300.
+ * Description: Scales the raw adc value between -30 - 30.
+ *              The second place value will be the lest digit to be displayed.
+ *              The first place value will be the right digit to be displayed.
  * Input:       int
  * Returns:     int
  ************************************************************************************/
 
 int scaleADC(int adcValue) {
-    int scaledMin = -300;
-    unsigned int scaledMax = 300;
+    int scaledMin = -30;
+    unsigned int scaledMax = 30;
     float rawMax = 1023;
     float rawMin = 0;
     
