@@ -162,7 +162,7 @@ unsigned int readAnalog(unsigned short select) {
         __delay_cycles(50);
     }
 
-    return adcValue/ 40; // Return the average of adcValue1 and adcValue2.
+    return adcValue/ 20; // Return the average of adcValue1 and adcValue2.
 
 }
 

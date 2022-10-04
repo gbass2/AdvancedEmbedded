@@ -24,13 +24,17 @@
 #define SEG_7 0xF8
 #define SEG_8 0x80
 #define SEG_9 0x90
+#define SEG_X 0x89
+#define SEG_Y 0x91
+#define SEG_Z 0xA4
 #define SEG_DOT ~BIT7
+#define SEG_DASH ~BIT6
 
 // Function prototypes.
 void setupADC();                                                  // Setup the adc pin connected to the potentiometer.
 unsigned int readAnalog(unsigned short);                          // Returns a 10-bit adc value.
 unsigned short displayOne7Seg(unsigned char, unsigned short);     // Drives the pins to display a passed in int (0-9) to one 7-segment display.
-void display7Seg(unsigned char*, unsigned int, unsigned short);   // Displays the corresponding passed in digits to all 4 7-segment display.
+void display7Seg(unsigned char*, int, unsigned short);   // Displays the corresponding passed in digits to all 4 7-segment display.
 void parseADC(unsigned int, unsigned char*);                      // Splits the adc value into 4 separate integers based on place-value.
 void initTimer_A();                                               // Initialize timer A.
 int scaleADC();                                                  // Scale the raw adc value to -300 - 300
@@ -67,7 +71,7 @@ int main(void)
     unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned int prevValue = 0;     // Holds the previous adc value
     unsigned short threshold = 3;   // threshold to prevent oscillation. 
-    int scaledVal = 0;              // Holds the scaled ADC value.
+    int scaledVal = 0;              // Holds the scaled ADC value -300 to 300.
     
     // Setup adc pins.
     setupADC();
@@ -99,15 +103,15 @@ int main(void)
 
         // Scale the adc value to -300 - 300
         scaledVal = scaleADC(adcValue);
-        scaledVal = abs(scaledVal);
-
+        
         // Splits the adc value into 4 separate integers based on place-value.
-        parseADC(scaledVal, digits); 
+        // Needs a postive value passed.
+        parseADC(abs(scaledVal), digits); 
         
         // Display the split integers on each corresponding 7-segment dispaly.
         // Pass the adc value to check for leading zeros and not display them.
         // Pass in the decmimal point to be displayed based on axis used.
-        display7Seg(digits, adcValue, axis);
+        display7Seg(digits, scaledVal, axis);
 
         prevValue = adcValue; // Set the previous adc value to the current.
     }
@@ -168,7 +172,7 @@ unsigned int readAnalog(unsigned short select) {
         __delay_cycles(50);
     }
 
-    return adcValue/ 40; // Return the average of adcValue1 and adcValue2.
+    return adcValue/ 20; // Return the average of adcValue1 and adcValue2.
 
 }
 
@@ -223,8 +227,15 @@ unsigned int readAnalog(unsigned short select) {
         P2OUT &= SEG_9; // Display 9.
     else if(segValue == '.')
         P2OUT &= SEG_DOT; // Display dot.
+    else if(segValue == '-')
+        P2OUT &= SEG_DASH; // Display dot -
+    else if(segValue == 'X')
+        P2OUT &= SEG_X; // Display dot X
+    else if(segValue == 'Y')
+        P2OUT &= SEG_Y; // Display dot Y
+        else if(segValue == 'Z')
+        P2OUT &= SEG_Z; // Display dot Z
     
-
     return 0;
 }
 
@@ -233,61 +244,47 @@ unsigned int readAnalog(unsigned short select) {
  * Description: Displays the corresponding passed in digits to all 4 7-segment display.
  *              Uses the adc value to determine which 7-seg has leading zeros.
  *              Displays decmimal point based on passed value 0-4. 0 being off.
- * Input:       unsigned char *digits, unsigned int adcValue, unsigned short dotDisplay.
+ * Input:       unsigned char *digits, int adcValue, unsigned short axis.
  *         
  * Returns:     void
  *****************************************************************************************/
-void display7Seg(unsigned char* digits, unsigned int adcValue, unsigned short dotDisplayed) {
-    // Display the adc value on the 7-segments. Does not show leading zeros.
-    // Delay is added to allow the segments to have a long on period.
-    // The least significant display's digit is displayed first.
-    if(adcValue >  999) {
-        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-        displayOne7Seg(digits[2], 2); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-        displayOne7Seg(digits[3], 3); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-    } else if(adcValue <= 999 && adcValue > 99) {
-        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-        displayOne7Seg(digits[2], 2); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-    } else if(adcValue <=  99 && adcValue >= 9) {
-        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
-
-    } else {
-        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(1600);
+void display7Seg(unsigned char* digits, int adcValue, unsigned short axis) {
+    // Display dash if value is negative
+    if(adcValue < 0) {
+        displayOne7Seg('-', 2);
+        __delay_cycles(1000);
     }
 
-    // Display decimal based based on passed in segment to display on.
-    switch(dotDisplayed) {
-        // Left most .
+    // Make the ADC value positive so it can be displayed
+    adcValue = abs(adcValue);
+
+    // Display the digit/char associated with the digital value.
+    displayOne7Seg(digits[1], 0); 
+    __delay_cycles(1000);
+    displayOne7Seg(digits[2], 1);
+    __delay_cycles(1000);
+    
+    // Display X,Y,Z based on the axis to be displayed.
+    switch(axis) {
+        // x axis.
         case 1:
-            displayOne7Seg('.', 3);
+            displayOne7Seg('X', 3);
+            __delay_cycles(1000);
             break;
-        // Left middle  .
+        // y axis.
         case 2:
-            displayOne7Seg('.', 2);
+            displayOne7Seg('Y', 3);
+            __delay_cycles(1000);
             break;
-        // Right middle  .
+        // z axis.
         case 3:
-            displayOne7Seg('.', 1);
-            break;
-        // Right most .
-        case 4:
-            displayOne7Seg('.', 0);
+            displayOne7Seg('Z', 3);
+            __delay_cycles(1000);
             break;
     }
 
+    // Display . on the second segment.
+    displayOne7Seg('.', 1);
 }
 
 /************************************************************************************
@@ -354,8 +351,7 @@ int scaleADC(int adcValue) {
     float rawMax = 1023;
     float rawMin = 0;
     
-    int scaled = 0;
-    scaled = (((adcValue - rawMin)) / (rawMax - rawMin) * (scaledMax - scaledMin)) + scaledMin;
+    int scaled = (((adcValue - rawMin)) / (rawMax - rawMin) * (scaledMax - scaledMin)) + scaledMin;
 
     return scaled;
 }
