@@ -10,6 +10,10 @@
  *      - Accelerometer
  *      - Code Composer Studio
  * Description: 
+ * 
+ * Notes: Don't handle oscillation when using scaled values. Does not need it. Only needs it for raw adc values.
+ *        Possibly set x,y,z values to 0 if less than 0.3 since they are not exactly zero when idle.
+ *        Implement button to switch between raw and scaled values. 
  ************************************************************************************/
 
 // Define the hex values needed to display each digit or character on the 7-segment.
@@ -71,7 +75,7 @@ int main(void)
     unsigned int adcValue = 0;      // Holds the current adc value for A0.
     unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned int prevValue = 0;     // Holds the previous adc value
-    unsigned short threshold = 3;   // threshold to prevent oscillation. 
+    unsigned short threshold = 1;   // threshold to prevent oscillation. 
     int scaledVal = 0;              // Holds the scaled ADC value -30 to 30 in Gs.
                                     // A decimal place will be added between the place values to have -3.0 to 3.0 Gs
     
@@ -115,7 +119,7 @@ int main(void)
         // Pass the adc value to check for leading zeros and not display them.
         // Pass in the decmimal point to be displayed based on axis used.
         // displayRaw7Seg(digits, adcValue, axis);
-        // displayScaled7Seg(digits, scaledVal, axis);
+        displayScaled7Seg(digits, scaledVal, axis);
 
         prevValue = adcValue; // Set the previous adc value to the current.
     }
