@@ -98,7 +98,8 @@ int main(void)
             adcValue = 1023;
 
         // Scale the adc value to -300 - 300
-        scaledVal = scaleADC(adcValue)
+        scaledVal = scaleADC(adcValue);
+        adcValue = scaledVal;
 
         // Splits the adc value into 4 separate integers based on place-value.
         parseADC(scaledVal, digits); 
@@ -109,7 +110,6 @@ int main(void)
         display7Seg(digits, adcValue, axis);
 
         prevValue = adcValue; // Set the previous adc value to the current.
-        OFCount;
     }
 
     return 0;
@@ -349,12 +349,12 @@ __interrupt void Timer_A_CCR0_ISR(void) {
  ************************************************************************************/
 
 int scaleADC(int adcValue) {
-    int scaledMin = -300
-    unsigned int scaledMax = 300
-    unsigned rawMax = 1023
-    unsigned rawMin = 0
+    int scaledMin = -300;
+    unsigned int scaledMax = 300;
+    float rawMax = 1023;
+    float rawMin = 0;
+    
+    int scaled = (((adcValue - rawMin)) / (rawMax - rawMin) * (scaledMax - scaledMin)) + scaledMin;
 
-    scaled = (((adcValue - rawMin)) / (rawMax - rawMin) * (scaledMax - scaledMin)) + scaledMin
-
-    return scaled
+    return scaled;
 }
