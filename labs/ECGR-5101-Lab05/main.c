@@ -99,7 +99,7 @@ int main(void)
 
         // Scale the adc value to -300 - 300
         scaledVal = scaleADC(adcValue);
-        adcValue = scaledVal;
+        scaledVal = abs(scaledVal);
 
         // Splits the adc value into 4 separate integers based on place-value.
         parseADC(scaledVal, digits); 
@@ -354,7 +354,8 @@ int scaleADC(int adcValue) {
     float rawMax = 1023;
     float rawMin = 0;
     
-    int scaled = (((adcValue - rawMin)) / (rawMax - rawMin) * (scaledMax - scaledMin)) + scaledMin;
+    int scaled = 0;
+    scaled = (((adcValue - rawMin)) / (rawMax - rawMin) * (scaledMax - scaledMin)) + scaledMin;
 
     return scaled;
 }
