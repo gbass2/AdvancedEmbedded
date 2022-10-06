@@ -11,9 +11,8 @@
  *      - Code Composer Studio
  * Description: 
  * 
- * Notes: Don't handle oscillation when using scaled values. Does not need it. Only needs it for raw adc values.
- *        Possibly set x,y,z values to 0 if less than 0.3 since they are not exactly zero when idle.
- *        Implement button to switch between raw and scaled values. 
+ * Notes: 
+ * https://github.com/alfy7/MSP430-Launchpad-Examples/blob/master/12_Button_Proper_Debouncing.c
  ************************************************************************************/
 
 // Define the hex values needed to display each digit or character on the 7-segment.
@@ -34,60 +33,56 @@
 #define SEG_DOT ~BIT7
 #define SEG_DASH ~BIT6
 
-// Function prototypes.
-void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
-unsigned int readAnalog(unsigned short);                              // Returns a 10-bit adc value.
-unsigned short displayOne7Seg(unsigned char, unsigned short);         // Drives the pins to display a passed in int (0-9) to one 7-segment display.
-void displayRaw7Seg(unsigned char*, unsigned int, unsigned short);                // Displays the corresponding passed in digits to all 4 7-segment display.
-void displayScaled7Seg(unsigned char*, int, unsigned short); // Displays a scaled ADC value from -30 to 30 in Gs.
-void parseADC(unsigned int, unsigned char*);                          // Splits the adc value into 4 separate integers based on place-value.
-void initTimer_A();                                                   // Initialize timer A.
-int scaleADC();                                                       // Scale the raw adc value to -30 to 30
-
 #define ACC_X BIT5 // Define 1.5 to be the pin connected to the accelerameter x axis.
 #define ACC_Y BIT6 // Define 1.6 to be the pin connected to the accelerameter y axis.
 #define ACC_Z BIT7 // Define 1.7 to be the pin connected to the accelerameter z axis.
 
-#define AXIS_DELAY_MS 30000 // Delay for 3 seconds. 
+#define AXIS_DELAY_MS 3000      // Delays for 3 seconds. 3 seconds reached when OFCount = this value.
 
-unsigned int adc[3];            // Holds the adc values for x,y,z axis of accelerameter. Used for multiple sample and conversion.
-unsigned short axis = 1;        // axis x=1, y=2, z=3. axis x by default.
 unsigned int OFCount = 0;       // Counter will be compared to AXIS_DELAY_MS.
+unsigned int adc[3];            // Holds the adc values for x,y,z axis of accelerameter. Used for multiple sample and conversion.
+unsigned short axis = 1;        // axis x=1, y=2, z=3. Axis x by default.
+unsigned short buttonMode = 0;  // Holds the state of the button.
+unsigned short buttonPressed = 0; // Denotes when button is pressed.
+
+// Function prototypes.
+void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
+unsigned int readAnalog(unsigned short);                              // Returns a 10-bit adc value.
+unsigned short displayOne7Seg(unsigned char, unsigned short);         // Drives the pins to display a passed in int (0-9) to one 7-segment display.
+void displayRaw7Seg(unsigned char*, unsigned int, unsigned short);    // Displays the corresponding passed in digits to all 4 7-segment display.
+void displayScaled7Seg(unsigned char*, int, unsigned short);          // Displays a scaled ADC value from -30 to 30 in Gs.
+void parseADC(unsigned int, unsigned char*);                          // Splits the adc value into 4 separate integers based on place-value.
+void initTimer_A();                                                   // Initialize timer A.
+int scaleADC();                                                       // Scale the raw adc value to -30 to 30
+void setupPins();                                                     // Sets the digital input and output pins for P1 and P2.
+unsigned int zeroADC(unsigned int, unsigned int);                     // Sets the zero point for the axis since it will not be true zero at idle.
 
 int main(void)
 {
-    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer AXIS_DELAY_MS. When =, then delay has been met.
+    WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer AXIS_DELAY_MS. When =, then delay has been met.
 
-    // Setup 7-segment pins.
-    // Set all port 2 pins to outputs.
-    P2DIR |= 0xFF;
-    P2SEL &= ~BIT6;
-    P2SEL &= ~BIT7;
-    P2OUT |= 0xFF;
-
-    // Setup 4 pins for selecting the segments to use.
-    // Set pins 1.1-1.4 to output and the rest as input.
-    P1DIR |= 0x1E;
-    P1OUT |= 0xFF;
-
-     __enable_interrupt(); // Enable interrupts.
-
+    // Setup local variables.
     unsigned int adcValue = 0;      // Holds the current adc value for A0.
     unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned int prevValue = 0;     // Holds the previous adc value
-    unsigned short threshold = 1;   // threshold to prevent oscillation. 
     int scaledVal = 0;              // Holds the scaled ADC value -30 to 30 in Gs.
                                     // A decimal place will be added between the place values to have -3.0 to 3.0 Gs
     
+    // Setup input and output pins.
+    setupPins();
+
     // Setup adc pins.
     setupADC();
 
-    // Setup interrupts.
+    // Setup timers.
     initTimer_A();
+
+    // Enable interrupts.
+    __enable_interrupt();          
 
     while(1) {
 
-        // Read adc.
+        // Read ADC based on current axis to read from. (current state).
         if(axis == 1)
             adcValue = readAnalog(5);    // Get the digital value for x axis connected to pin 1.5.
         else if (axis == 2)
@@ -95,31 +90,34 @@ int main(void)
         else if (axis == 3)
             adcValue = readAnalog(7);    // Get the digital value for z axis connected to pin 1.7.
 
-        // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
-        if(abs(adcValue - prevValue) < threshold)  {
-            adcValue = prevValue;
-        } 
-
-        // If previous adc value is to be ie kept then the values on both ends of the extreme cannot be reached.
-        // So, if they are close to the beginning or end then show 1023 or 0.
-        if(adcValue < threshold)
-            adcValue = 0;
-        else if(adcValue >= (1023-threshold))
-            adcValue = 1023;
-
-        // Scale the adc value to -30 to 30 Gs.
+        // Prepare ADC value by setting the zero point.
+        adcValue = zeroADC(adcValue, prevValue);
+        
+        // Scale the adc value to -30 to 30 Gs (-3.0 to 3.0).
         scaledVal = scaleADC(adcValue);
+
+        // If button is pressed. Set axis back to x and reset timer.
+        if(buttonPressed == 1) {
+            axis = 1;
+            buttonPressed = 0;
+            OFCount = 0;
+            continue;
+        }
         
         // Splits the adc value into 4 separate integers based on place-value.
         // Needs a postive value passed.
-        // parseADC(adcValue, digits); 
-        parseADC(abs(scaledVal), digits); 
+        if(buttonMode == 0)
+            parseADC(abs(scaledVal), digits); 
+        else
+            parseADC(adcValue, digits); 
         
         // Display the split integers on each corresponding 7-segment dispaly.
         // Pass the adc value to check for leading zeros and not display them.
-        // Pass in the decmimal point to be displayed based on axis used.
-        // displayRaw7Seg(digits, adcValue, axis);
-        displayScaled7Seg(digits, scaledVal, axis);
+        // Pass in the current state of the axis.
+        if(buttonMode == 0)
+            displayScaled7Seg(digits, scaledVal, axis);
+        else
+            displayRaw7Seg(digits, adcValue, axis);
 
         prevValue = adcValue; // Set the previous adc value to the current.
     }
@@ -197,22 +195,22 @@ unsigned int readAnalog(unsigned short select) {
 
     // Set the 7-segment display the digit will be displayed to.
     if(select == 0) {
-        P1OUT |= BIT1;
-        P1OUT &= ~(BIT2 + BIT3 + BIT4);
-    } else if(select == 1) {
-        P1OUT |= BIT2;
-        P1OUT &= ~(BIT1 + BIT3 + BIT4);
-    } else if(select == 2) {
-        P1OUT |= BIT3;
+        P1OUT |= BIT0;
         P1OUT &= ~(BIT1 + BIT2 + BIT4);
+    } else if(select == 1) {
+        P1OUT |= BIT1;
+        P1OUT &= ~(BIT0 + BIT2 + BIT4);
+    } else if(select == 2) {
+        P1OUT |= BIT2;
+        P1OUT &= ~(BIT0 + BIT1 + BIT4);
     } else if(select == 3) {
         P1OUT |= BIT4;
-        P1OUT &= ~(BIT1 + BIT2 + BIT3);
+        P1OUT &= ~(BIT0 + BIT1 + BIT2);
     } else {
         return 0;
     }
 
-    // Display the values on the 7-segment display.
+    // Display the passed digit on the 7-segment display.
     if(segValue == 0)
         P2OUT &= SEG_0; // Display 0.
     else if(segValue == 1)
@@ -236,14 +234,14 @@ unsigned int readAnalog(unsigned short select) {
     else if(segValue == '.')
         P2OUT &= SEG_DOT; // Display dot.
     else if(segValue == '-')
-        P2OUT &= SEG_DASH; // Display dot -
+        P2OUT &= SEG_DASH; // Display dash -
     else if(segValue == 'X')
-        P2OUT &= SEG_X; // Display dot X
+        P2OUT &= SEG_X; // Display X
     else if(segValue == 'Y')
-        P2OUT &= SEG_Y; // Display dot Y
+        P2OUT &= SEG_Y; // Display Y
         else if(segValue == 'Z')
-        P2OUT &= SEG_Z; // Display dot Z
-    
+        P2OUT &= SEG_Z; // Display Z
+
     return 0;
 }
 
@@ -383,19 +381,23 @@ void initTimer_A(void) {
     TACCR0 = 0; // Initially, Stop the Timer
     TACCTL0 |= CCIE; // Enable interrupt for CCR0.
     TACTL = TASSEL_2 + ID_0 + MC_1; // Select SMCLK, SMCLK/1 , Up Mode
-    TACCR0 = 100-1; // Start Timer, Compare value for Up Mode to get to 1ms.
+    TACCR0 = 1000-1; // Start Timer, Compare value for Up Mode to get to 1ms.
+
+    TACCR1=1000-1;
 }
 
 
 /************************************************************************************
  * Function Name:              ** Timer_A_CCR0_ISR **
- * Description: Runs when when timer = CCR0
+ * Description: Runs when when timer = CCR0. Runs every ms and increments a counter.
+ *              When OFCount = 30000. 3 seconds have passed 
  * Input:       No Input
  * Returns:     Void
  ************************************************************************************/
 #pragma vector = TIMER0_A0_VECTOR
 __interrupt void Timer_A_CCR0_ISR(void) {
     OFCount++;
+
     // Check to see if time has been met.
     if(OFCount == AXIS_DELAY_MS) {
         // Set the axis to be displayed based on previous set axis.
@@ -428,3 +430,81 @@ int scaleADC(int adcValue) {
 
     return scaled;
 }
+
+/************************************************************************************
+ * Function Name:              ** setupPins **
+ * Description: Sets up the digital input and output pins.
+ * Input:       No input
+ * Returns:     void
+ ************************************************************************************/
+void setupPins() {
+    // Setup 7-segment pins.
+    // Set all port 2 pins to outputs.
+    P2DIR |= 0xFF;
+    P2SEL &= ~BIT6;
+    P2SEL &= ~BIT7;
+    P2OUT |= 0xFF;
+
+    // Setup 4 pins for selecting the segments to use.
+    // Set pins 1.0, 1.1, 1.2, 1.4 to output and the rest as input.
+    P1DIR |= 0x17;
+    P1OUT |= 0xFF;
+
+    // Setup button on pin 1.3
+    P1REN|=BIT3; // Enable pullup/pulldown resistors for P1.3
+    P1OUT|=BIT3; // Set P1.3 to have pull up resistors
+    P1IE|=BIT3;  // Enable interrupt on P1.3
+    P1IES|=BIT3; // Set interrupt flag on the falling edge of logic level on P1.3
+}
+
+/************************************************************************************
+ * Function Name:              ** zeroADC **
+ * Description: Sets the axis to zero when not moving.
+ * Input:       unsigned int, unsigned int
+ * Returns:     unsigned int
+ ************************************************************************************/
+unsigned int zeroADC(unsigned int adcValue, unsigned int prevValue) {
+    unsigned short threshold = 3;   // threshold to prevent oscillation. 
+    // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
+    if(abs(adcValue - prevValue) < threshold)  {
+        adcValue = prevValue;
+    } 
+
+    // If previous adc value is to be ie kept then the values on both ends of the extreme cannot be reached.
+    // So, if they are close to the beginning or end then show 1023 or 0.
+    if(adcValue < threshold)
+        adcValue = 0;
+    else if(adcValue >= (1023-threshold))
+        adcValue = 1023;
+
+    // Set adcValue to zero when the accelerometer is not moving.
+    if(axis == 1 && (adcValue > 455 && adcValue < 490))      // x axis
+        adcValue = 512;
+    else if(axis == 2 && (adcValue > 455 && adcValue < 490)) // y axis
+        adcValue = 512;
+    else if(axis == 3 && (adcValue > 540 && adcValue < 580)) // z axis
+        adcValue = 512;
+
+    return adcValue;
+}
+
+// // Interrupt for button
+#pragma vector=PORT1_VECTOR
+__interrupt void Port_1(void)
+{
+    // Delay to prevent bouncing.
+    __delay_cycles(1000000);
+
+    buttonPressed = 1; // Set button pressed to true.
+
+    // Change button state. To mimic a button latch.
+    if(buttonMode == 0)
+        buttonMode = 1;
+    else    
+        buttonMode = 0;
+
+    P1IFG&=~BIT3; // Reset Port1 interrupt flag.
+}
+
+
+    
