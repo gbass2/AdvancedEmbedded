@@ -12,7 +12,7 @@
  * Description: 
  * 
  * Notes: 
- * https://github.com/alfy7/MSP430-Launchpad-Examples/blob/master/12_Button_Proper_Debouncing.c
+ * https://stats.stackexchange.com/questions/281162/scale-a-number-between-a-range
  ************************************************************************************/
 
 // Define the hex values needed to display each digit or character on the 7-segment.
@@ -42,7 +42,7 @@
 unsigned int OFCount = 0;       // Counter will be compared to AXIS_DELAY_MS.
 unsigned int adc[3];            // Holds the adc values for x,y,z axis of accelerameter. Used for multiple sample and conversion.
 unsigned short axis = 1;        // axis x=1, y=2, z=3. Axis x by default.
-unsigned short buttonMode = 0;  // Holds the state of the button.
+unsigned short buttonMode = 0;  // Holds the state of the button. 1 = Scaled Gs.
 unsigned short buttonPressed = 0; // Denotes when button is pressed.
 
 // Function prototypes.
@@ -106,7 +106,7 @@ int main(void)
         
         // Splits the adc value into 4 separate integers based on place-value.
         // Needs a postive value passed.
-        if(buttonMode == 0)
+        if(buttonMode == 1)
             parseADC(abs(scaledVal), digits); 
         else
             parseADC(adcValue, digits); 
@@ -114,7 +114,7 @@ int main(void)
         // Display the split integers on each corresponding 7-segment dispaly.
         // Pass the adc value to check for leading zeros and not display them.
         // Pass in the current state of the axis.
-        if(buttonMode == 0)
+        if(buttonMode == 1)
             displayScaled7Seg(digits, scaledVal, axis);
         else
             displayRaw7Seg(digits, adcValue, axis);
@@ -151,7 +151,7 @@ void setupADC() {
 /************************************************************************************
  * Function Name:                 ** readAnalog **        
  * Description: Samples the A0 analog pin and returns the digital value.
- * Input:       Unsigned short
+ * Input:       Unsigned short select
  * Returns:     Unsigned int
  ************************************************************************************/
 unsigned int readAnalog(unsigned short select) {
@@ -164,10 +164,10 @@ unsigned int readAnalog(unsigned short select) {
         // Sampling and conversion start.
         ADC10CTL0 &= ~ENC;
         while (ADC10CTL1 & ADC10BUSY);               // Wait if ADC10 core is active
-        ADC10CTL0 |= ENC + ADC10SC;
+        ADC10CTL0 |= ENC + ADC10SC;                  // Sampling and conversion start.
         ADC10SA = (unsigned int)adc;
 
-        // Select channel to recieve data from. z,y, or z axis.
+        // Select channel to recieve data from. z, y, or z axis.
         if(select == 5)
             adcValue += adc[2];
         else if(select == 6)
@@ -286,7 +286,7 @@ void displayRaw7Seg(unsigned char* digits, unsigned int adcValue, unsigned short
         __delay_cycles(1600);
     }
 
-    // Display decimal based based on passed in segment to display on.
+    // Display decimal based on passed in segment to display on.
     switch(dotDisplayed) {
         // Left most .
         case 1:
@@ -358,9 +358,10 @@ void displayScaled7Seg(unsigned char* digits, int adcValue, unsigned short axis)
 
 /************************************************************************************
  * Function Name:                  ** parseADC **
- * Description: Takes a integer (0-1023) and splits it into 
+ * Description: Takes an integer (0-1023) and splits it into 
  *              4 integers by its place-value.
- * Input:       unsigned int, unsigned* char
+ *              Stores the 4 integers in an array.
+ * Input:       unsigned int adcValue, unsigned* char digits
  * Returns:     Void
  ************************************************************************************/
 void parseADC(unsigned int adcValue, unsigned char* digits){
@@ -382,15 +383,13 @@ void initTimer_A(void) {
     TACCTL0 |= CCIE; // Enable interrupt for CCR0.
     TACTL = TASSEL_2 + ID_0 + MC_1; // Select SMCLK, SMCLK/1 , Up Mode
     TACCR0 = 1000-1; // Start Timer, Compare value for Up Mode to get to 1ms.
-
-    TACCR1=1000-1;
 }
 
 
 /************************************************************************************
  * Function Name:              ** Timer_A_CCR0_ISR **
- * Description: Runs when when timer = CCR0. Runs every ms and increments a counter.
- *              When OFCount = 30000. 3 seconds have passed 
+ * Description: Runs when timer = CCR0. Runs every ms and increments a counter.
+ *              When OFCount = 3000. 3 seconds have passed 
  * Input:       No Input
  * Returns:     Void
  ************************************************************************************/
@@ -416,7 +415,7 @@ __interrupt void Timer_A_CCR0_ISR(void) {
  * Description: Scales the raw adc value between -30 - 30.
  *              The second place value will be the lest digit to be displayed.
  *              The first place value will be the right digit to be displayed.
- * Input:       int
+ * Input:       int adcValue
  * Returns:     int
  ************************************************************************************/
 
@@ -451,20 +450,21 @@ void setupPins() {
     P1OUT |= 0xFF;
 
     // Setup button on pin 1.3
-    P1REN|=BIT3; // Enable pullup/pulldown resistors for P1.3
-    P1OUT|=BIT3; // Set P1.3 to have pull up resistors
-    P1IE|=BIT3;  // Enable interrupt on P1.3
-    P1IES|=BIT3; // Set interrupt flag on the falling edge of logic level on P1.3
+    P1REN |= BIT3; // Enable pullup/pulldown resistors for P1.3
+    P1OUT |= BIT3; // Set P1.3 to have pull up resistors
+    P1IE |= BIT3;  // Enable interrupt on P1.3
+    P1IES &= ~BIT3; // Set interrupt flag on the rising edge of logic level on P1.3
 }
 
 /************************************************************************************
  * Function Name:              ** zeroADC **
- * Description: Sets the axis to zero when not moving.
- * Input:       unsigned int, unsigned int
+ * Description: Zeros out the axis when not moving and handles potential oscillation.
+ * Input:       unsigned int adcValue, unsigned int prevValue
  * Returns:     unsigned int
  ************************************************************************************/
 unsigned int zeroADC(unsigned int adcValue, unsigned int prevValue) {
     unsigned short threshold = 3;   // threshold to prevent oscillation. 
+    
     // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
     if(abs(adcValue - prevValue) < threshold)  {
         adcValue = prevValue;
@@ -488,16 +488,22 @@ unsigned int zeroADC(unsigned int adcValue, unsigned int prevValue) {
     return adcValue;
 }
 
-// // Interrupt for button
+/************************************************************************************
+ * Function Name:              ** Port_1 **
+ * Description: Button interrupt for pin 1.3
+ * Input:       No Input
+ * Returns:     void
+ ************************************************************************************/
 #pragma vector=PORT1_VECTOR
 __interrupt void Port_1(void)
 {
     // Delay to prevent bouncing.
-    __delay_cycles(1000000);
+    __delay_cycles(10000);
 
     buttonPressed = 1; // Set button pressed to true.
 
     // Change button state. To mimic a button latch.
+    // 1 is scaled Gs and 0 is raw adc values.
     if(buttonMode == 0)
         buttonMode = 1;
     else    
@@ -505,6 +511,3 @@ __interrupt void Port_1(void)
 
     P1IFG&=~BIT3; // Reset Port1 interrupt flag.
 }
-
-
-    
