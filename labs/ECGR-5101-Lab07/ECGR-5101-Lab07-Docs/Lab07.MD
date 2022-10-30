@@ -1,21 +1,7 @@
 # Lab 07
 
 ## Description:
-
-## MSP430G2553 ADC Intput µ<sub>1</sub> 
-- Reads input from ADC and sends the result to another MSP (µ<sub>2</sub>) for display.
-    - States:
-        - ReadADC: 
-            - Reads input from a poteniometer. Outputs 4 characters of the place values of the adc integer (0-1023).
-        - SendUART: 
-            - Sends the 4 adc characters over UART.
-        - RecieveUART:
-            - Recieves an ack when the reciever recieves the 4 characters.
-            - Checks for ack before sending.
-
-    - Timers:
-        - Timer0:
-        -   Used to send 4 characters of the place values of the adc every 200 ms.
+- Reads ADC value from a 10k-ohm potentiometer connected as an input and dipslays the results on another microcontroller over UART. The second microcontroller displays 4 characters of the read ADC value to 4-7 segment displays.
 
 ## MSP430G2553 ADC Intput µ<sub>1</sub> 
 - Reads input from ADC and sends the result to another MSP (µ<sub>2</sub>) for display.
