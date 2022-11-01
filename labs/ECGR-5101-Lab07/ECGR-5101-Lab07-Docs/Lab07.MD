@@ -1,7 +1,10 @@
 # Lab 07
 
+
 ## Description:
 - Reads ADC value from a 10k-ohm potentiometer connected as an input and dipslays the results on another microcontroller over UART. The second microcontroller displays 4 characters of the read ADC value to 4-7 segment displays.
+- Need to be single file
+    - Read dedicated GPIO Pin output to determine the which MCU to read or display ADC value.
 
 ## MSP430G2553 ADC Intput µ<sub>1</sub> 
 - Reads input from ADC and sends the result to another MSP (µ<sub>2</sub>) for display.
