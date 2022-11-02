@@ -5,14 +5,14 @@
  * ECGR 5101 Advanced Embedded Lab 06
  * Equipment and Software:
  *      - MSP430G2 Launcpad
- *      - MSP430G2452
+ *      - (2) MSP430G2452
  *      - LDQ-M3604RI 7-Segement display
  *      - Potentiometer
  *      - Code Composer Studio
  * Description:
  *      Displays 0-1023 raw ADC value using 4 7-segment display based on the
- *      input value from a potentiometer. The MSP430G2452 is used instead of
- *      the MSP430G2553.
+ *      input value from a potentiometer. µ-controller 0 recieves the adc input and
+ *      sends it to µ-controller 1 to be displayed.
  * Notes:
  ************************************************************************************/
 
@@ -34,54 +34,131 @@
 #define SEG_DOT ~BIT7
 #define SEG_DASH ~BIT6
 
-// Define 1.5 to be the pin connected to the potentiometer.
-#define POT BIT5
+// Define 1.0 to be the pin connected to the potentiometer.
+#define POT BIT0
+
+// Define 1.5 as the hardware flag to determine which µ controller to use.
+#define HFLAG BIT3
+
+// UART Pins
+#define TXD BIT2
+#define RXD BIT1
+
+// Define the state machine.
+// Each µ-controller will have 2 states
+enum states {ReadADC, SendUART, RecieveUART, DisplayValue};
+enum states state;
 
 // Function prototypes.
 void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
 unsigned int readAnalog();                                            // Returns a 10-bit adc value.
 unsigned short displayOne7Seg(unsigned char, unsigned short);         // Drives the pins to display a passed in int (0-9) to one 7-segment display.
-void displayRaw7Seg(unsigned char*, unsigned int, unsigned short);    // Displays the corresponding passed in digits to all 4 7-segment display.
+void displayRaw7Seg(unsigned char*, unsigned short);                  // Displays the corresponding passed in digits to all 4 7-segment display.
 void parseADC(unsigned int, unsigned char*);                          // Splits the adc value into 4 separate integers based on place-value.
-void setupPins();                                                     // Sets the digital input and output pins for P1 and P2.
+void setupPins();                                                     // Sets the digital input and output pins for P1 and P2 for µ-controller 1.
+void setupUART();                                                     // Setup uart for both µ-controllers.
 unsigned int handleOSC(unsigned int, unsigned int);                   // Handles the oscillation of the digits.
+unsigned short chipSelect();                                          // Return the state of which microcontroller is used.         
 
 int main(void)
 {
-    WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer AXIS_DELAY_MS. When =, then delay has been met.
+    WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
 
     // Setup local variables.
     unsigned int adcValue = 0;      // Holds the current adc value for A0.
     unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned int prevValue = 0;     // Holds the previous adc value
+    unsigned short chip = 0;        // Define which µ-controller is selected.
 
-    // Setup input and output pins.
-    setupPins();
+    // Determine which µ-controller is running.
+    chip = chipSelect();
 
-    // Setup adc pins.
-    setupADC();
+    // Setup UART.
+    setupUART();
 
-    while(1) {
-        adcValue = readAnalog();    // Get the digital value for the potentiometer
+    // Enable interrupts.
+    __enable_interrupt();   
 
-        // Prepare ADC value by handling oscillation.
-        adcValue = handleOSC(adcValue, prevValue);
+    // If µ-controller 0, run the following:
+    if(chip == 0) {
+        // Setup adc pins.
+        setupADC();
 
-        // Splits the adc value into 4 separate integers based on place-value.
-        parseADC(adcValue, digits);
+        state = ReadADC;
 
-        // Display the split integers on each corresponding 7-segment dispaly.
-        displayRaw7Seg(digits, adcValue, 0);
+        while(1) {
+            
+            if (state == ReadADC) {
+                // Get the digital value for the potentiometer
+                adcValue = readAnalog(); 
 
-        prevValue = adcValue; // Set the previous adc value to the current.
+                // Prepare ADC value by handling oscillation.
+                adcValue = handleOSC(adcValue, prevValue);
+
+                // Splits the adc value into 4 separate integers based on place-value.
+                parseADC(adcValue, digits);
+
+                state = SendUART;
+            }
+
+            if(state == SendUART) {
+                // Send UART.
+                IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
+
+            }
+
+            // Set the previous adc value to the current.
+            prevValue = adcValue; 
+        }
+    }
+
+    // If µ-controller 1, run the following:
+    if (chip == 1) {
+
+        // Setup digital pins
+        setupPins();
+
+        state = RecieveUART;
+
+        while(1) {
+
+            if(state == RecieveUART) {
+                // Get the 4 chars to be displayed.
+            } 
+            
+            if(state == DisplayValue) {
+                // Display the split integers on each corresponding 7-segment dispaly.
+                displayRaw7Seg(digits, 0);
+
+                state = RecieveUART;
+            }
+        }
     }
 
     return 0;
 }
 
 /************************************************************************************
+ * Function Name:                   ** chipSelect **
+ * Description: Define the microcontroller for the code to run.
+ * Input:       No Input
+ * Return:      unsigned short
+ ************************************************************************************/
+unsigned short chipSelect(){
+    // Setup pin 1.5 as chip select pin
+    P1REN |= HFLAG; // Enable pullup/pulldown resistors for P1.5
+    P1OUT |= HFLAG; // Set P1.5 to have pull up resistors
+    P1IE |= HFLAG;  // Enable interrupt on P1.5
+    P1IES &= ~HFLAG; // Set interrupt flag on the rising edge of logic level on P1.5
+
+    unsigned short chip = ((P1IN & HFLAG) >> 3);
+
+    return chip;
+}
+
+/************************************************************************************
  * Function Name:                   ** SetupADC **
- * Description: Sets up the adc channel and pin A5
+ * Description: Sets up the adc channel and pin A0.
  * Input:       No Input
  * Return:      Void
  ************************************************************************************/
@@ -90,8 +167,8 @@ void setupADC() {
 
     // Setup A0 for the potentiometer.
     P1SEL |= POT;                       // Set pin to analog.
-    ADC10AE0 = POT;                     // Select channel A5.
-    ADC10CTL1 = INCH_5 + ADC10DIV_3;    // Select Channel A5, ADC10CLK/3
+    ADC10AE0 = POT;                     // Select channel A0.
+    ADC10CTL1 = INCH_0 + ADC10DIV_3;    // Select Channel A0, ADC10CLK/3
     ADC10CTL0 = ADC10SHT_3 + MSC + ADC10ON;
 
     // Sampling and conversion start.
@@ -142,17 +219,17 @@ unsigned int readAnalog() {
 
     // Set the 7-segment display the digit will be displayed to.
     if(select == 0) {
-        P1OUT |= BIT0;
-        P1OUT &= ~(BIT1 + BIT2 + BIT4);
-    } else if(select == 1) {
-        P1OUT |= BIT1;
-        P1OUT &= ~(BIT0 + BIT2 + BIT4);
-    } else if(select == 2) {
-        P1OUT |= BIT2;
-        P1OUT &= ~(BIT0 + BIT1 + BIT4);
-    } else if(select == 3) {
         P1OUT |= BIT4;
-        P1OUT &= ~(BIT0 + BIT1 + BIT2);
+        P1OUT &= ~(BIT5 + BIT6 + BIT7);
+    } else if(select == 1) {
+        P1OUT |= BIT5;
+        P1OUT &= ~(BIT4 + BIT6 + BIT7);
+    } else if(select == 2) {
+        P1OUT |= BIT6;
+        P1OUT &= ~(BIT4+ BIT5 + BIT7);
+    } else if(select == 3) {
+        P1OUT |= BIT7;
+        P1OUT &= ~(BIT4 + BIT5 + BIT6);
     } else {
         return 0;
     }
@@ -202,11 +279,11 @@ unsigned int readAnalog() {
  *
  * Returns:     void
  *****************************************************************************************/
-void displayRaw7Seg(unsigned char* digits, unsigned int adcValue, unsigned short dotDisplayed) {
+void displayRaw7Seg(unsigned char* digits, unsigned short dotDisplayed) {
     // Display the adc value on the 7-segments. Does not show leading zeros.
     // Delay is added to allow the segments to have a long on period.
     // The least significant display's digit is displayed first.
-    if(adcValue >  999) {
+    if(digits[3] !=0) {
         displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
         displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
@@ -215,14 +292,14 @@ void displayRaw7Seg(unsigned char* digits, unsigned int adcValue, unsigned short
         __delay_cycles(1600);
         displayOne7Seg(digits[3], 3); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-    } else if(adcValue <= 999 && adcValue > 99) {
+    } else if(digits[3] == 0 && digits[2] != 0) {
         displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
         displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
         displayOne7Seg(digits[2], 2); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-    } else if(adcValue <=  99 && adcValue >= 9) {
+    } else if(digits[2] == 0 && digits[1] != 0) {
         displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
         displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
@@ -270,25 +347,44 @@ void parseADC(unsigned int adcValue, unsigned char* digits){
     digits[3] = (adcValue/1000) % 10;   // 1000's plce.
 }
 
-
 /************************************************************************************
  * Function Name:              ** setupPins **
- * Description: Sets up the digital input and output pins.
+ * Description: Sets up the digital input and output pins for µ-controller 1.
  * Input:       No input
  * Returns:     void
  ************************************************************************************/
 void setupPins() {
     // Setup 7-segment pins.
-    // Set all port 2 pins to outputs.
-    P2DIR |= 0xFF;
+    // Set all port 2 pins to outputs except for 1.3.
+    P2DIR |= 0xF7;
     P2SEL &= ~BIT6;
     P2SEL &= ~BIT7;
     P2OUT |= 0xFF;
 
     // Setup 4 pins for selecting the segments to use.
-    // Set pins 1.0, 1.1, 1.2, 1.4 to output and the rest as input.
-    P1DIR |= 0x17;
+    // Set pins 1.4, 1.5, 1.6, 1.7 to output and the rest as input.
+    P1DIR |= 0xF0;
     P1OUT |= 0xFF;
+}
+
+/************************************************************************************
+ * Function Name:              ** setupUART **
+ * Description: Sets up UART for both µ-controllers.
+ * Input:       No input
+ * Returns:     void
+ ************************************************************************************/
+void setupUART() {
+    DCOCTL = 0;                               // Select lowest DCOx and MODx settings
+    BCSCTL1 = CALBC1_1MHZ;                    // Set DCO
+    DCOCTL = CALDCO_1MHZ;
+    P1SEL |= RXD + TXD;                       // P1.1 UCA0RXD input
+    P1SEL2 |= RXD + TXD;                      // P1.2 UCA0TXD output
+    UCA0CTL1 |= UCSSEL_2;                     // SMCLK
+    UCA0BR0 = 104;                            // 1MHz 9600
+    UCA0BR1 = 0;                              // 1MHz 9600
+    UCA0MCTL = UCBRS0;                        // Modulation UCBRSx = 1
+    UCA0CTL1 &= ~UCSWRST;                     // **Initialize USCI state machine**
+    IE2 |= UCA0RXIE;                          // Enable the Receive  interrupt 
 }
 
 /************************************************************************************
@@ -314,3 +410,6 @@ unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
 
     return adcValue;
 }
+
+
+
