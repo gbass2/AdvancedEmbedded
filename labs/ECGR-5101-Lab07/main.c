@@ -48,6 +48,8 @@
 // Each µ-controller will have 2 states
 enum states {ReadADC, SendUART, RecieveUART, DisplayValue};
 enum states state;
+unsigned char* data;            // Pointer to the digits.
+unsigned int i;                 // Iterator for the digits array.
 
 // Function prototypes.
 void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
@@ -58,7 +60,7 @@ void parseADC(unsigned int, unsigned char*);                          // Splits 
 void setupPins();                                                     // Sets the digital input and output pins for P1 and P2 for µ-controller 1.
 void setupUART();                                                     // Setup uart for both µ-controllers.
 unsigned int handleOSC(unsigned int, unsigned int);                   // Handles the oscillation of the digits.
-unsigned short chipSelect();                                          // Return the state of which microcontroller is used.         
+unsigned short chipSelect();                                          // Return the state of which microcontroller is used.
 
 int main(void)
 {
@@ -66,8 +68,8 @@ int main(void)
 
     // Setup local variables.
     unsigned int adcValue = 0;      // Holds the current adc value for A0.
-    unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned int prevValue = 0;     // Holds the previous adc value
+    unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned short chip = 0;        // Define which µ-controller is selected.
 
     // Determine which µ-controller is running.
@@ -103,6 +105,7 @@ int main(void)
 
             if(state == SendUART) {
                 // Send UART.
+                data = digits;
                 IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
 
             }
@@ -412,4 +415,17 @@ unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
 }
 
 
-
+/************************************************************************************
+ * Function Name:              ** USCIAB0TX_VECTOR **
+ * Description: Sets the Tx buffer to the characters needed to send.
+ * Input:       unsigned char* digits
+ * Returns:     void
+ ************************************************************************************/
+#pragma vector=USCIAB0TX_VECTOR
+__interrupt void USCI0TX_ISR(void)
+{
+    i=0;
+    UCA0TXBUF = data[i++];             // TX next character
+        if (i == sizeof data - 1)      // TX over?
+            IE2 &= ~UCA0TXIE;          // Disable USCI_A0 TX interrupt
+}
