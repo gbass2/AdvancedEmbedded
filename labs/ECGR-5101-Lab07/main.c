@@ -48,8 +48,8 @@
 // Each µ-controller will have 2 states
 enum states {ReadADC, SendUART, RecieveUART, DisplayValue};
 enum states state;
-unsigned char* data;            // Pointer to the digits.
-unsigned int i;                 // Iterator for the digits array.
+
+unsigned char digits[5];        // Holds each place-value of the adc value in separate chars.
 
 // Function prototypes.
 void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
@@ -69,7 +69,6 @@ int main(void)
     // Setup local variables.
     unsigned int adcValue = 0;      // Holds the current adc value for A0.
     unsigned int prevValue = 0;     // Holds the previous adc value
-    unsigned char digits[4];        // Holds each place-value of the adc value in separate chars.
     unsigned short chip = 0;        // Define which µ-controller is selected.
 
     // Determine which µ-controller is running.
@@ -91,23 +90,22 @@ int main(void)
         while(1) {
             
             if (state == ReadADC) {
-                // Get the digital value for the potentiometer
-                adcValue = readAnalog(); 
+                 // Get the digital value for the potentiometer
+                 adcValue = readAnalog(); 
 
-                // Prepare ADC value by handling oscillation.
-                adcValue = handleOSC(adcValue, prevValue);
+                 // Prepare ADC value by handling oscillation.
+                 adcValue = handleOSC(adcValue, prevValue);
 
-                // Splits the adc value into 4 separate integers based on place-value.
-                parseADC(adcValue, digits);
+                 // Splits the adc value into 4 separate integers based on place-value.
+                 parseADC(adcValue, digits);
 
-                state = SendUART;
+                 state = SendUART;
             }
 
-            if(state == SendUART) {
+            if (state == SendUART) {
                 // Send UART.
-                data = digits;
                 IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
-
+                state = ReadADC;
             }
 
             // Set the previous adc value to the current.
@@ -115,7 +113,7 @@ int main(void)
         }
     }
 
-    // If µ-controller 1, run the following:
+    // // If µ-controller 1, run the following:
     if (chip == 1) {
 
         // Setup digital pins
@@ -278,38 +276,38 @@ unsigned int readAnalog() {
  *              Uses the adc value to determine which 7-seg has leading zeros.
  *              Displays decmimal point based on passed value 0-4. 0 being off.
  *              Raw value 0-1023.
- * Input:       unsigned char *digits, unsigned int adcValue, unsigned short dotDisplay.
+ * Input:       unsigned char *data, unsigned int adcValue, unsigned short dotDisplay.
  *
  * Returns:     void
  *****************************************************************************************/
-void displayRaw7Seg(unsigned char* digits, unsigned short dotDisplayed) {
+void displayRaw7Seg(unsigned char* data, unsigned short dotDisplayed) {
     // Display the adc value on the 7-segments. Does not show leading zeros.
     // Delay is added to allow the segments to have a long on period.
     // The least significant display's digit is displayed first.
-    if(digits[3] !=0) {
-        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
+    if(data[3] !=0) {
+        displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
+        displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-        displayOne7Seg(digits[2], 2); // Display the digit/char associated with the digital value.
+        displayOne7Seg(data[2], 2); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-        displayOne7Seg(digits[3], 3); // Display the digit/char associated with the digital value.
+        displayOne7Seg(data[3], 3); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-    } else if(digits[3] == 0 && digits[2] != 0) {
-        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
+    } else if(data[3] == 0 && data[2] != 0) {
+        displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
+        displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-        displayOne7Seg(digits[2], 2); // Display the digit/char associated with the digital value.
+        displayOne7Seg(data[2], 2); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-    } else if(digits[2] == 0 && digits[1] != 0) {
-        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
+    } else if(data[2] == 0 && data[1] != 0) {
+        displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
-        displayOne7Seg(digits[1], 1); // Display the digit/char associated with the digital value.
+        displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
 
     } else {
-        displayOne7Seg(digits[0], 0); // Display the digit/char associated with the digital value.
+        displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
         __delay_cycles(1600);
     }
 
@@ -340,10 +338,10 @@ void displayRaw7Seg(unsigned char* digits, unsigned short dotDisplayed) {
  * Description: Takes an integer (0-1023) and splits it into
  *              4 integers by its place-value.
  *              Stores the 4 integers in an array.
- * Input:       unsigned int adcValue, unsigned* char digits
+ * Input:       unsigned int adcValue, unsigned* char data
  * Returns:     Void
  ************************************************************************************/
-void parseADC(unsigned int adcValue, unsigned char* digits){
+void parseADC(unsigned int adcValue, unsigned char* data){
     digits[0] = adcValue % 10;          // 1's place.
     digits[1] = (adcValue / 10) % 10;   // 10's place.
     digits[2] = (adcValue/100) % 10;    // 100's palce.
@@ -424,8 +422,15 @@ unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
 #pragma vector=USCIAB0TX_VECTOR
 __interrupt void USCI0TX_ISR(void)
 {
-    i=0;
-    UCA0TXBUF = data[i++];             // TX next character
-        if (i == sizeof data - 1)      // TX over?
-            IE2 &= ~UCA0TXIE;          // Disable USCI_A0 TX interrupt
+    unsigned short i = 0;
+
+    while(digits[i] != '\0') {
+        while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
+        UCA0TXBUF = digits[i];             // TX next character
+        i++;
+    }
+    while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
+    UCA0TXBUF = '\r';
+
+    IE2 &= ~UCA0TXIE;          // Disable USCI_A0 TX interrupt
 }
