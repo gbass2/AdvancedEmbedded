@@ -119,7 +119,6 @@ int main(void)
                 IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
                 state = ReadADC;
             }
-            // __delay_cycles(1000);
         }
     }
 
@@ -195,6 +194,8 @@ void setupADC() {
  * Returns:     Unsigned int
  ************************************************************************************/
 unsigned int readAnalog() {
+    unsigned int adcValue = 0;
+
     // Sampling and conversion start.
     ADC10CTL0 &= ~ENC;
     while (ADC10CTL1 & ADC10BUSY);          // Wait if ADC10 core is active
@@ -202,8 +203,12 @@ unsigned int readAnalog() {
     // Sampling and conversion start.
     ADC10CTL0 |= ENC + ADC10SC;
 
+    __delay_cycles(10);
+
     // Select channel to recieve data from ADC10MEM.
-    return ADC10MEM;
+    adcValue = ADC10MEM;
+
+    return adcValue;
 
 }
 
@@ -418,12 +423,12 @@ void setupUART() {
 unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
     unsigned short threshold = 10;   // threshold to prevent oscillation.
 
-    if (adcValue < 600)
-            threshold = 10;
-    if (adcValue > 600 && adcValue < 800)
-            threshold = 15;
-    if (adcValue > 800)
-        threshold = 20;
+    // if (adcValue < 600)
+    //         threshold = 10;
+    // if (adcValue > 600 && adcValue < 800)
+    //         threshold = 15;
+    // if (adcValue > 800)
+    //     threshold = 20;
 
     // // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
     if(abs(adcValue - prevValue) <= threshold)  {
