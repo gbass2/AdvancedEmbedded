@@ -423,12 +423,8 @@ void setupUART() {
 unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
     unsigned short threshold = 10;   // threshold to prevent oscillation.
 
-    // if (adcValue < 600)
-    //         threshold = 10;
-    // if (adcValue > 600 && adcValue < 800)
-    //         threshold = 15;
-    // if (adcValue > 800)
-    //     threshold = 20;
+    if (adcValue > 900)
+        threshold = 15;
 
     // // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
     if(abs(adcValue - prevValue) <= threshold)  {
@@ -437,9 +433,9 @@ unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
 
     // If previous adc value is to be ie kept then the values on both ends of the extreme cannot be reached.
     // So, if they are close to the beginning or end then show 1023 or 0.
-    if(adcValue < threshold)
+    if(adcValue < (threshold+3))
         adcValue = 0;
-    else if(adcValue >= (1023-threshold))
+    else if(adcValue >= (1023-threshold)-3)
         adcValue = 1023;
 
     return adcValue;
