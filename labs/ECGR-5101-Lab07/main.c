@@ -1,7 +1,7 @@
 #include <msp430.h>
 
 /************************************************************************************
- * Grayson Bass, Sam Xu             ** Lab 06 **              ** 10/20/2022 **
+ * Grayson Bass, Sam Xu             ** Lab 07 **              ** 11/8/2022 **
  * ECGR 5101 Advanced Embedded Lab 06
  * Equipment and Software:
  *      - MSP430G2 Launcpad
@@ -119,6 +119,7 @@ int main(void)
                 IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
                 state = ReadADC;
             }
+            // __delay_cycles(1000);
         }
     }
 
@@ -194,8 +195,6 @@ void setupADC() {
  * Returns:     Unsigned int
  ************************************************************************************/
 unsigned int readAnalog() {
-    unsigned int adcValue = 0;
-
     // Sampling and conversion start.
     ADC10CTL0 &= ~ENC;
     while (ADC10CTL1 & ADC10BUSY);          // Wait if ADC10 core is active
@@ -203,12 +202,8 @@ unsigned int readAnalog() {
     // Sampling and conversion start.
     ADC10CTL0 |= ENC + ADC10SC;
 
-    __delay_cycles(10);
-
     // Select channel to recieve data from ADC10MEM.
-    adcValue = ADC10MEM;
-
-    return adcValue;
+    return ADC10MEM;
 
 }
 
@@ -423,19 +418,24 @@ void setupUART() {
 unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
     unsigned short threshold = 10;   // threshold to prevent oscillation.
 
-    if (adcValue > 900)
-        threshold = 15;
+    if (adcValue < 600)
+            threshold = 10;
+    if (adcValue > 600 && adcValue < 800)
+            threshold = 15;
+    if (adcValue > 800)
+        threshold = 20;
 
     // // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
     if(abs(adcValue - prevValue) <= threshold)  {
         adcValue = prevValue;
     }
 
+
     // If previous adc value is to be ie kept then the values on both ends of the extreme cannot be reached.
     // So, if they are close to the beginning or end then show 1023 or 0.
-    if(adcValue < (threshold+3))
+    if(adcValue < threshold)
         adcValue = 0;
-    else if(adcValue >= (1023-threshold)-3)
+    else if(adcValue >= (1023-threshold))
         adcValue = 1023;
 
     return adcValue;
