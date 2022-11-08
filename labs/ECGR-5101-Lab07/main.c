@@ -18,16 +18,25 @@
 
 // Define the hex values needed to display each digit or character on the 7-segment.
 // 7-Segment display used is common anode so the bits are inverted.
-#define SEG_0 0xC0
-#define SEG_1 0xF9
-#define SEG_2 0xA4
-#define SEG_3 0xB0
-#define SEG_4 0x99
-#define SEG_5 0x92
-#define SEG_6 0x82
-#define SEG_7 0xF8
-#define SEG_8 0x80
-#define SEG_9 0x90
+#define SEG_0_P1 0x27
+#define SEG_0_P2 0xF6
+#define SEG_1_P2 0xF6
+#define SEG_2_P1 0x67
+#define SEG_2_P2 0xF5
+#define SEG_3_P1 0x6F
+#define SEG_3_P2 0xF4
+#define SEG_4_P1 0xBF
+#define SEG_4_P2 0xF4
+#define SEG_5_P1 0x2F
+#define SEG_5_P2 0xFC
+#define SEG_6_P1 0x27
+#define SEG_6_P2 0xFC
+#define SEG_7_P1 0x7F
+#define SEG_7_P2 0xF6
+#define SEG_8_P1 0x27
+#define SEG_8_P2 0xF4
+#define SEG_9_P1 0x2F
+#define SEG_9_P2 0xF4
 #define SEG_X 0x89
 #define SEG_Y 0x91
 #define SEG_Z 0xA4
@@ -35,10 +44,10 @@
 #define SEG_DASH ~BIT6
 
 // Define 1.0 to be the pin connected to the potentiometer.
-#define POT BIT0
+#define POT BIT3
 
-// Define 1.5 as the hardware flag to determine which µ controller to use.
-#define HFLAG BIT3
+// Define 2.6 as the hardware flag to determine which µ controller to use.
+#define HFLAG BIT0
 
 // UART Pins
 #define TXD BIT2
@@ -49,8 +58,8 @@
 enum states {ReadADC, SendUART, RecieveUART, DisplayValue};
 enum states state;
 
-unsigned char digits[5];        // Holds each place-value of the adc value in separate chars.
-
+unsigned char digits[5];       // Holds each place-value of the adc value in separate chars.
+ 
 // Function prototypes.
 void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
 unsigned int readAnalog();                                            // Returns a 10-bit adc value.
@@ -85,31 +94,32 @@ int main(void)
         // Setup adc pins.
         setupADC();
 
+        // state = SendUART;
         state = ReadADC;
 
         while(1) {
             
             if (state == ReadADC) {
                  // Get the digital value for the potentiometer
-                 adcValue = readAnalog(); 
+                 adcValue = readAnalog();     
 
-                 // Prepare ADC value by handling oscillation.
-                 adcValue = handleOSC(adcValue, prevValue);
+                // Prepare ADC value by handling oscillation.
+                adcValue = handleOSC(adcValue, prevValue);
 
                  // Splits the adc value into 4 separate integers based on place-value.
                  parseADC(adcValue, digits);
-
-                 state = SendUART;
+                 
+                // Set the previous adc value to the current.
+                prevValue = adcValue;
+                state = SendUART;
             }
 
-            if (state == SendUART) {
+            if (state == SendUART) {                
                 // Send UART.
                 IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
                 state = ReadADC;
             }
-
-            // Set the previous adc value to the current.
-            prevValue = adcValue; 
+            // __delay_cycles(1000);
         }
     }
 
@@ -120,17 +130,18 @@ int main(void)
         setupPins();
 
         state = RecieveUART;
-
         while(1) {
 
             if(state == RecieveUART) {
                 // Get the 4 chars to be displayed.
+                IE2 |= UCA0RXIE;                          // Enable the Receive interrupt.
+                state = DisplayValue;
             } 
             
             if(state == DisplayValue) {
                 // Display the split integers on each corresponding 7-segment dispaly.
                 displayRaw7Seg(digits, 0);
-
+                
                 state = RecieveUART;
             }
         }
@@ -145,21 +156,21 @@ int main(void)
  * Input:       No Input
  * Return:      unsigned short
  ************************************************************************************/
-unsigned short chipSelect(){
+unsigned short chipSelect(){    
     // Setup pin 1.5 as chip select pin
-    P1REN |= HFLAG; // Enable pullup/pulldown resistors for P1.5
-    P1OUT |= HFLAG; // Set P1.5 to have pull up resistors
-    P1IE |= HFLAG;  // Enable interrupt on P1.5
-    P1IES &= ~HFLAG; // Set interrupt flag on the rising edge of logic level on P1.5
+    P1REN |= HFLAG; // Enable pullup/pulldown resistors for P2.6
+    P1OUT |= HFLAG; // Set P2.6 to have pull up resistors
+    P1IE |= HFLAG;  // Enable interrupt on P2.6
+    P1IES &= ~HFLAG; // Set interrupt flag on the rising edge of logic level on P2.6
 
-    unsigned short chip = ((P1IN & HFLAG) >> 3);
+    unsigned short chip = (P1IN & 0x01);
 
     return chip;
 }
 
 /************************************************************************************
  * Function Name:                   ** SetupADC **
- * Description: Sets up the adc channel and pin A0.
+ * Description: Sets up the adc channel and pin A3.
  * Input:       No Input
  * Return:      Void
  ************************************************************************************/
@@ -168,8 +179,8 @@ void setupADC() {
 
     // Setup A0 for the potentiometer.
     P1SEL |= POT;                       // Set pin to analog.
-    ADC10AE0 = POT;                     // Select channel A0.
-    ADC10CTL1 = INCH_0 + ADC10DIV_3;    // Select Channel A0, ADC10CLK/3
+    ADC10AE0 = POT;                     // Select channel A33
+    ADC10CTL1 = INCH_3 + ADC10DIV_3;    // Select Channel A3, ADC10CLK/3
     ADC10CTL0 = ADC10SHT_3 + MSC + ADC10ON;
 
     // Sampling and conversion start.
@@ -184,26 +195,15 @@ void setupADC() {
  * Returns:     Unsigned int
  ************************************************************************************/
 unsigned int readAnalog() {
-    unsigned short i;
-    unsigned int adcValue = 0;
+    // Sampling and conversion start.
+    ADC10CTL0 &= ~ENC;
+    while (ADC10CTL1 & ADC10BUSY);          // Wait if ADC10 core is active
 
-    // Sample the adc value 20 times.
-    for(i=0; i<20; i++) {
+    // Sampling and conversion start.
+    ADC10CTL0 |= ENC + ADC10SC;
 
-        // Sampling and conversion start.
-        ADC10CTL0 &= ~ENC;
-        while (ADC10CTL1 & ADC10BUSY);          // Wait if ADC10 core is active
-        // Sampling and conversion start.
-        ADC10CTL0 |= ENC + ADC10SC;
-
-
-        // Select channel to recieve data from ADC10MEM.
-        adcValue += ADC10MEM;
-
-        __delay_cycles(50);
-    }
-
-    return adcValue/ 20; // Return the average of adcValue1 and adcValue2.
+    // Select channel to recieve data from ADC10MEM.
+    return ADC10MEM;
 
 }
 
@@ -217,45 +217,66 @@ unsigned int readAnalog() {
  ****************************************************************************************/
  unsigned short displayOne7Seg(unsigned char segValue, unsigned short select) {
     P2OUT |= 0xFF; // Flush the current bits.
+    P1OUT |= 0xFF; // Flush the current bits.
+
 
     // Set the 7-segment display the digit will be displayed to.
     if(select == 0) {
-        P1OUT |= BIT4;
-        P1OUT &= ~(BIT5 + BIT6 + BIT7);
+        P2OUT |= BIT2;
+        P2OUT &= ~(BIT4 + BIT5 + BIT7);
     } else if(select == 1) {
-        P1OUT |= BIT5;
-        P1OUT &= ~(BIT4 + BIT6 + BIT7);
+        P2OUT |= BIT4;
+        P2OUT &= ~(BIT2 + BIT5 + BIT7);
     } else if(select == 2) {
-        P1OUT |= BIT6;
-        P1OUT &= ~(BIT4+ BIT5 + BIT7);
+        P2OUT |= BIT5;
+        P2OUT &= ~(BIT2+ BIT4 + BIT7);
     } else if(select == 3) {
-        P1OUT |= BIT7;
-        P1OUT &= ~(BIT4 + BIT5 + BIT6);
+        P2OUT |= BIT7;
+        P2OUT &= ~(BIT2 + BIT4 + BIT5);
     } else {
         return 0;
     }
 
     // Display the passed digit on the 7-segment display.
-    if(segValue == 0)
-        P2OUT &= SEG_0; // Display 0.
-    else if(segValue == 1)
-        P2OUT &= SEG_1; // Display 1.
-    else if(segValue == 2)
-        P2OUT &= SEG_2; // Display 2.
-    else if(segValue == 3)
-        P2OUT &= SEG_3; // Display 3.
-    else if(segValue ==4 )
-        P2OUT &= SEG_4; // Display 4.
-    else if(segValue == 5)
-        P2OUT &= SEG_5; // Display 5.
-    else if(segValue == 6)
-        P2OUT &= SEG_6; // Display 6.
-    else if(segValue == 7)
-        P2OUT &= SEG_7; // Display 7.
-    else if(segValue == 8)
-        P2OUT &= SEG_8; // Display 8.
-    else if(segValue == 9)
-        P2OUT &= SEG_9; // Display 9.
+    if(segValue == 0) {
+        P1OUT &= SEG_0_P1; // Display 0.
+        P2OUT &= SEG_0_P2; // Display 0.
+    }
+    else if(segValue == 1) {
+        P2OUT &= SEG_1_P2; // Display 1;
+    }     
+    else if(segValue == 2) {
+        P1OUT &= SEG_2_P1; // Display 2.
+        P2OUT &= SEG_2_P2; // Display 2.
+    }
+    else if(segValue == 3) {
+        P1OUT &= SEG_3_P1; // Display 3.
+        P2OUT &= SEG_3_P2; // Display 3.
+    }
+    else if(segValue ==4 ) {
+        P1OUT &= SEG_4_P1;    // Display 4.
+        P2OUT &= SEG_4_P2;    // Display 4.
+    }
+    else if(segValue == 5) {
+        P1OUT &= SEG_5_P1;    // Display 5.
+        P2OUT &= SEG_5_P2;    // Display 5.
+    }
+    else if(segValue == 6) {
+        P1OUT &= SEG_6_P1;    // Display 6.
+        P2OUT &= SEG_6_P2;    // Display 6.
+    }
+    else if(segValue == 7) {
+        P1OUT &= SEG_7_P1;    // Display 7.
+        P2OUT &= SEG_7_P2;    // Display 7.
+    }
+    else if(segValue == 8) {
+        P1OUT &= SEG_8_P1;    // Display 8.
+        P2OUT &= SEG_8_P2;    // Display 8.
+    }
+    else if(segValue == 9) {
+        P1OUT &= SEG_9_P1;    // Display 9.
+        P2OUT &= SEG_9_P2;    // Display 9.
+    }
     else if(segValue == '.')
         P2OUT &= SEG_DOT; // Display dot.
     else if(segValue == '-')
@@ -342,10 +363,11 @@ void displayRaw7Seg(unsigned char* data, unsigned short dotDisplayed) {
  * Returns:     Void
  ************************************************************************************/
 void parseADC(unsigned int adcValue, unsigned char* data){
-    digits[0] = adcValue % 10;          // 1's place.
-    digits[1] = (adcValue / 10) % 10;   // 10's place.
-    digits[2] = (adcValue/100) % 10;    // 100's palce.
-    digits[3] = (adcValue/1000) % 10;   // 1000's plce.
+    data[0] = adcValue % 10;          // 1's place.
+    data[1] = (adcValue / 10) % 10;   // 10's place.
+    data[2] = (adcValue/100) % 10;    // 100's palce.
+    data[3] = (adcValue/1000) % 10;   // 1000's plce.
+    data[4] = '\r';                   // Add char to denote end of string.
 }
 
 /************************************************************************************
@@ -357,14 +379,14 @@ void parseADC(unsigned int adcValue, unsigned char* data){
 void setupPins() {
     // Setup 7-segment pins.
     // Set all port 2 pins to outputs except for 1.3.
-    P2DIR |= 0xF7;
+    P2DIR |= 0xFF;
     P2SEL &= ~BIT6;
     P2SEL &= ~BIT7;
     P2OUT |= 0xFF;
 
     // Setup 4 pins for selecting the segments to use.
     // Set pins 1.4, 1.5, 1.6, 1.7 to output and the rest as input.
-    P1DIR |= 0xF0;
+    P1DIR |= 0xFF;
     P1OUT |= 0xFF;
 }
 
@@ -385,7 +407,6 @@ void setupUART() {
     UCA0BR1 = 0;                              // 1MHz 9600
     UCA0MCTL = UCBRS0;                        // Modulation UCBRSx = 1
     UCA0CTL1 &= ~UCSWRST;                     // **Initialize USCI state machine**
-    IE2 |= UCA0RXIE;                          // Enable the Receive  interrupt 
 }
 
 /************************************************************************************
@@ -395,10 +416,17 @@ void setupUART() {
  * Returns:     unsigned int
  ************************************************************************************/
 unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
-    unsigned short threshold = 6;   // threshold to prevent oscillation.
+    unsigned short threshold = 10;   // threshold to prevent oscillation.
 
-    // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
-    if(abs(adcValue - prevValue) < threshold)  {
+    if (adcValue < 600)
+            threshold = 10;
+    if (adcValue > 600 && adcValue < 800)
+            threshold = 15;
+    if (adcValue > 800)
+        threshold = 20;
+
+    // // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
+    if(abs(adcValue - prevValue) <= threshold)  {
         adcValue = prevValue;
     }
 
@@ -414,23 +442,64 @@ unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
 
 
 /************************************************************************************
- * Function Name:              ** USCIAB0TX_VECTOR **
+ * Function Name:              ** USCI0TX_ISR **
  * Description: Sets the Tx buffer to the characters needed to send.
- * Input:       unsigned char* digits
+ * Input:       No Input
  * Returns:     void
  ************************************************************************************/
 #pragma vector=USCIAB0TX_VECTOR
 __interrupt void USCI0TX_ISR(void)
 {
+    // Send start character.
+    while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
+    UCA0TXBUF = '(';
+
     unsigned short i = 0;
 
-    while(digits[i] != '\0') {
-        while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
-        UCA0TXBUF = digits[i];             // TX next character
+    // Loop until the end of the array and send the characters.
+    while(digits[i] != '\r') {
+        while (!(IFG2&UCA0TXIFG));            // USCI_A0 TX buffer ready?
+        UCA0TXBUF = digits[i];                // TX next character
         i++;
     }
+
+    // Send stop character.
     while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
-    UCA0TXBUF = '\r';
+    UCA0TXBUF = ')';
 
     IE2 &= ~UCA0TXIE;          // Disable USCI_A0 TX interrupt
 }
+
+/************************************************************************************
+ * Function Name:              ** USCI0RX_ISR **
+ * Description: Sets an array from incoming characters over UART.
+ * Input:       No Input
+ * Returns:     void
+ ************************************************************************************/
+#pragma vector=USCIAB0RX_VECTOR
+__interrupt void USCI0RX_ISR(void)
+{
+    // Check for starting character.
+    while (!(IFG2&UCA0RXIFG));                  // USCI_A0 TR buffer ready?
+    if(UCA0RXBUF == '(') {
+        unsigned short i = 0;
+        
+        // start recieving the message.
+        while (!(IFG2&UCA0RXIFG));
+        unsigned char currChar = UCA0RXBUF;
+
+        // Loop until stop character is found and add data to digits array.
+        while(currChar != ')') {
+            while (!(IFG2&UCA0RXIFG));          // USCI_A0 TR buffer ready?
+            digits[i] = currChar;               // TX -> RXed character
+            currChar = UCA0RXBUF;
+            i++;
+        }
+        digits[i++] = '\r';
+    }
+
+    IE2 &= ~UCA0RXIE;                           // Disable the Recieve interrupt 
+    // IE2 |= UCA0TXIE;                            // Enable the Send interrupt. Used to loop msg back. 
+}
+
+
