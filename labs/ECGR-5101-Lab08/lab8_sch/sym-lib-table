@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name "HC-SR04")(type "KiCad")(uri "${KIPRJMOD}/HC-SR04/HC-SR04.kicad_sym")(options "")(descr ""))
+  (lib (name "LDQ-M3604RI")(type "KiCad")(uri "${KIPRJMOD}/LDQ-M3604RI/LDQ-M3604RI.kicad_sym")(options "")(descr ""))
+  (lib (name "MSP-EXP430G2")(type "KiCad")(uri "${KIPRJMOD}/MSP-EXP430G2/MSP-EXP430G2.kicad_sym")(options "")(descr ""))
+)

@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name "LDQ-M3604RI")(type "KiCad")(uri "${KIPRJMOD}/LDQ-M3604RI")(options "")(descr ""))
+  (lib (name "MSP-EXP430G2")(type "KiCad")(uri "${KIPRJMOD}/MSP-EXP430G2")(options "")(descr ""))
+  (lib (name "HC-SR04")(type "KiCad")(uri "${KIPRJMOD}/HC-SR04")(options "")(descr ""))
+)
