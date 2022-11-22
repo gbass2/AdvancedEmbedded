@@ -1,19 +1,23 @@
 #include <msp430.h>
 
 /************************************************************************************
- * Grayson Bass, Sam Xu             ** Lab 07 **              ** 11/8/2022 **
- * ECGR 5101 Advanced Embedded Lab 06
+ * Grayson Bass, Sam Xu             ** Lab 08 **              ** 11/22/2022 **
+ * ECGR 5101 Advanced Embedded Lab 08
  * Equipment and Software:
  *      - MSP430G2 Launcpad
  *      - (2) MSP430G2452
  *      - LDQ-M3604RI 7-Segement display
- *      - Potentiometer
+ *      - HC-SR0 Ultrasonic sensor
+ *      - Speaker
  *      - Code Composer Studio
  * Description:
- *      Displays 0-1023 raw ADC value using 4 7-segment display based on the
- *      input value from a potentiometer. µ-controller 0 recieves the adc input and
- *      sends it to µ-controller 1 to be displayed.
+ *      Reads distance from an ultrasonic sensor on one msp430 and sends the
+ *      read distance to a second msp430 over uart to be displayed on
+ *      4-7 segment displays. Uses a speaker to play sound at 5 different
+ *      frequencies depending on the read distance.
  * Notes:
+ *      Resource used for ultrasonic sensor:
+ *      https://github.com/AlejandroEsquivel/msp430-ultrasonic-distance/tree/master
  ************************************************************************************/
 
 // Define the hex values needed to display each digit or character on the 7-segment.
@@ -62,7 +66,10 @@
 enum mainStates {ReadADC, ReadUS, SendUART, RecieveUART, DisplayUSValue, DisplayACCValue};
 enum mainStates mainState;
 
-unsigned char digits[5];       // Holds each place-value of the adc value in separate chars.
+// Holds the chars to send over uart.
+unsigned char digits[5];
+
+// Variables for measuring distance.
 volatile unsigned long startTime;
 volatile unsigned long endTime;
 volatile unsigned long deltaTime;
@@ -126,10 +133,11 @@ int main(void) {
 
     // If µ-controller 1, run the following:
     if (chip == 1) {
-        // Setup digital pins
+        // Setup digital pins and uart.
         setupPinsRx();
 
         mainState = RecieveUART;
+
         while(1) {
 
             if(mainState == RecieveUART) {
@@ -268,29 +276,29 @@ void displayRaw7Seg(unsigned char* data, unsigned short dotDisplayed) {
     // The least significant display's digit is displayed first.
     if(data[3] !=0) {
         displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[2], 2); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[3], 3); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
     } else if(data[3] == 0 && data[2] != 0) {
         displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[2], 2); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
     } else if(data[2] == 0 && data[1] != 0) {
         displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
 
     } else {
         displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
     }
 
     // Display decimal based on passed in segment to display on.
@@ -459,6 +467,7 @@ unsigned int measure() {
     unsigned int distance[11];
     unsigned short i;
 
+    // Get the median distance
     for(i=0; i<11; i++) {
         measureOne();
         distance[i] = oneDistance;
@@ -466,6 +475,7 @@ unsigned int measure() {
 
     sort(distance,11);
 
+    // Play sound.
     if(distance[6] == 5)
         playSound(100);
     else if(distance[6] == 10)
@@ -536,7 +546,7 @@ __interrupt void USCI0TX_ISR(void)
     while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
     UCA0TXBUF = ')';
 
-    IE2 &= ~UCA0TXIE;          // Disable USCI_A0 TX interrupt
+    IE2 &= ~UCA0TXIE;                         // Disable USCI_A0 TX interrupt
 }
 
 /************************************************************************************
@@ -567,7 +577,7 @@ __interrupt void USCI0RX_ISR(void)
         digits[i++] = '\r';
     }
 
-    IE2 &= ~UCA0RXIE;                           // Disable the Recieve interrupt
+    IE2 &= ~UCA0RXIE;                           // Disable the Receive interrupt
 }
 
 /************************************************************************************
