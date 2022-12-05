@@ -76,17 +76,26 @@ volatile unsigned long deltaTime;
 volatile unsigned int oneDistance;
 
 // Function prototypes.
-unsigned short displayOne7Seg(unsigned char, unsigned short);         // Drives the pins to display a passed in int (0-9) to one 7-segment display.
-void displayRaw7Seg(unsigned char*, unsigned short);                  // Displays the corresponding passed in digits to all 4 7-segment display.
-void displayScaled7Seg(unsigned char*, unsigned short);               // Displays a scaled ADC value from -30 to 30 in Gs.
-void parseADC(unsigned int, unsigned char*);                          // Splits the adc value into 4 separate integers based on place-value.
-void setupPinsTx();                                                   // Sets the digital input and output pins for P1 and P2 for µ-controller 1.
-void setupPinsRx();                                                   // Sets the digital input and output pins for P1 and P2 for µ-controller 2.
-unsigned short chipSelect();                                          // Return the state of which microcontroller is used.
-void measureOne();                                                    // Measure from the ultrasonic in cm.
-unsigned int measure();                                               // Measure multiple ultrasonic values and take the median.
-void playSound(unsigned int);                                         // Play sound at a specified frequency.
-void sort(unsigned int array[], int);                                 // Helper function to sort the contents of an array.
+// Drives the pins to display a passed in int (0-9) to one 7-segment display.
+unsigned short displayOne7Seg(unsigned char, unsigned short);
+// Displays the corresponding passed in digits to all 4 7-segment display.
+void displayRaw7Seg(unsigned char*, unsigned short);
+// Splits the adc value into 4 separate integers based on place-value.
+void parseADC(unsigned int, unsigned char*);
+// Sets the digital input and output pins for P1 and P2 for µ-controller 1.
+void setupPinsTx();
+// Sets the digital input and output pins for P1 and P2 for µ-controller 2.
+void setupPinsRx();
+// Return the state of which microcontroller is used.
+unsigned short chipSelect();
+// Measure from the ultrasonic in cm.
+void measureOne();
+// Measure multiple ultrasonic values and take the median.
+unsigned int measure();
+// Play sound at a specified frequency.
+void playSound(unsigned int);
+// Helper function to sort the contents of an array.
+void sort(unsigned int array[], int);
 
 int main(void) {
     WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
@@ -613,8 +622,12 @@ __interrupt void TA1_ISR(void) {
             unsigned int dist = (unsigned int)(deltaTime/58);
 
             // Only update the distance if it is valid.
-            if (dist >= 2.0 && dist <= 400)
-                oneDistance = dist;
+            if (dist <= 2.0)
+                dist = 2;
+            else if (dist >= 400)
+                dist = 400;
+
+            oneDistance = dist;
         }
         break;
     }

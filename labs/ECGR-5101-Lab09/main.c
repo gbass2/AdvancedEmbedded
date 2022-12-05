@@ -37,29 +37,35 @@
 #define SEG_8_P2 0xF4
 #define SEG_9_P1 0x2F
 #define SEG_9_P2 0xF4
-#define SEG_X 0x89
-#define SEG_Y 0x91
-#define SEG_Z 0xA4
+#define SEG_X_P1 0x97
+#define SEG_X_P2 0xF4
+#define SEG_Y_P1 0xAF
+#define SEG_Y_P2 0xF4
+#define SEG_Z_P1 0x67
+#define SEG_Z_P2 0xF5
 #define SEG_DOT ~BIT5
 #define SEG_DASH ~BIT1
 
-#define ACC_X BIT5 // P1.4 accelerameter x axis.
-#define ACC_Y BIT4 // P1.5 accelerameter y axis.
-#define ACC_Z BIT3 // P1.6  accelerameter z axis.
+#define ACC_X BIT5 // P1.5 accelerameter x axis.
+#define ACC_Y BIT4 // P1.4 accelerameter y axis.
+#define ACC_Z BIT3 // P1.3  accelerameter z axis.
 #define HFLAG BIT0 // P1.0 as the hardware flag to determine which µ controller to use.
 #define FREQ_CPU 1000000L // Cpu frequency.
 #define SPEAKER BIT1
 #define TRIG BIT7
 #define ECHO BIT1
-#define SW1 BIT3
-#define SW2 BIT4
+#define SW1 BIT2
+#define SW2 BIT3
+#define Z_MEDIAN 490
+#define Y_MEDIAN 490
+#define X_MEDIAN 482
 
 // UART Pins
 #define TXD BIT2
 #define RXD BIT1
 
 // Define the state machines for the µ-controllers and the buttons.
-enum mainStates {ReadADC, ReadUS, SendUART, RecieveUART, DisplayUSValue, DisplayACCValue};
+enum mainStates {ReadUS, ReadADC, SendUART, RecieveUART, DisplayUSValue, DisplayACCValue};
 enum buttonStates {Depressed, Pressed};
 enum soundStates {Frequency1, Frequency2, Frequency3, Frequency4, Frequency5};
 enum axisStates {axisX, axisY, axisZ};
@@ -68,7 +74,7 @@ enum soundStates soundState;
 enum buttonStates buttonTwoState;
 enum axisStates axisState;
 
-unsigned char digits[7];       // Holds each place-value of the adc value in separate chars.
+unsigned char digits[6];        // Holds each place-value of the adc value in separate chars.
 unsigned int adc[3];            // Holds the adc values for x,y,z axis of accelerameter. Used for multiple sample and conversion.
 volatile unsigned long startTime;
 volatile unsigned long endTime;
@@ -77,10 +83,10 @@ volatile unsigned int oneDistance;
 
 // Function prototypes.
 void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
-unsigned int readAnalog(unsigned short);                              // Returns a 10-bit adc value.
+unsigned int readAnalog(enum axisStates);                             // Returns a 10-bit adc value.
 unsigned short displayOne7Seg(unsigned char, unsigned short);         // Drives the pins to display a passed in int (0-9) to one 7-segment display.
 void displayRaw7Seg(unsigned char*, unsigned short);                  // Displays the corresponding passed in digits to all 4 7-segment display.
-void displayScaled7Seg(unsigned char*, unsigned short);               // Displays a scaled ADC value from -30 to 30 in Gs.
+void displayScaled7Seg(unsigned char*);                               // Displays a scaled ADC value from -3 to 3 in Gs.
 void parseADC(unsigned int, unsigned char*);                          // Splits the adc value into 4 separate integers based on place-value.
 void setupPinsTx();                                                   // Sets the digital input and output pins for P1 and P2 for µ-controller 1.
 void setupPinsRx();                                                   // Sets the digital input and output pins for P1 and P2 for µ-controller 2.
@@ -88,8 +94,9 @@ unsigned short chipSelect();                                          // Return 
 void measureOne();                                                    // Measure from the ultrasonic in cm.
 unsigned int measure();                                               // Measure multiple ultrasonic values and take the median.
 void playSound(unsigned int);                                         // Play sound at a specified frequency.
-int scaleADC();                                                       // Scale the raw adc value to -30 to 30
+void scaleADC(int, enum axisStates, unsigned char*);                   // Scale the raw adc value between 0 and 90.
 void sort(unsigned int array[], int);
+unsigned int handleOSC(unsigned int, unsigned int);                   // Handles the oscillation of the digits.
 
 int main(void) {
     WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
@@ -106,19 +113,16 @@ int main(void) {
     // If µ-controller 0, run the following:
     if(chip == 0) {
         // Setup local variables.
-        unsigned int adcValue = 0;      // Holds the current adc value.
-        int scaledValue = 0;            // holds the scaled acc value.
-        unsigned int prevValue = 0;     // Holds the previous adc value
+        short accSign = 0;              // holds the sign of the acc value.
         unsigned int distance = 0;      // Holds the median distance of multiple measurements.
+        unsigned int adcValue = 0;      // Holds the current adc value.
+        unsigned int prevValue = 0;     // Holds the previous adc value.
 
         // Setup digital pins and uart.
         setupPinsTx();
 
         // Setup adc pins.
         setupADC();
-
-        mainState = ReadUS;
-//        mainState = ReadUSdADC;
 
         while(1) {
 
@@ -129,24 +133,48 @@ int main(void) {
                 // Splits the distance value into 4 separate integers based on place-value.
                 parseADC(distance, digits);
 
-//                digits[4] = 0;
+                digits[4] = 0;
 
                 mainState = SendUART;
             }
+//            if (mainState == ReadADC) {
+//                __delay_cycles(100000);
+//                // Measure from US.
+//                adcValue = readAnalog(axisState);
+//
+//                // Splits the distance value into 4 separate integers based on place-value.
+//                parseADC(adcValue, digits);
+//
+//                digits[4] = 0;
+//
+//                mainState = SendUART;
+//            }
 
             if(mainState == ReadADC) {
-                // Get the digital value for x axis connected to pin 1.4.
-                adcValue = readAnalog(3);
+                // Get the digital value for z axis connected to pin 1.3.
+                adcValue = readAnalog(axisState);
 
-                scaledValue = scaleADC(adcValue);
+                adcValue = handleOSC(adcValue, prevValue);
 
-                // Splits the adc value into 4 separate integers based on place-value.
-                parseADC(abs(scaledValue), digits);
+                scaleADC(adcValue, axisState, digits);
 
-                if(scaledValue < 0)
+                if(axisState == axisX)
+                    digits[2] = 1;
+                else if(axisState == axisY)
+                    digits[2] = 2;
+                else if(axisState == axisZ)
+                     digits[2] = 3;
+                else
+                    digits[2] = 0;
+
+                if(accSign == 1)
                     digits[3] = 1;
+                else
+                    digits[3] = 0;
 
-//                digits[4] = 1;
+                digits[4] = 1;
+
+                prevValue = adcValue;
 
                 mainState = SendUART;
             }
@@ -154,11 +182,11 @@ int main(void) {
             if (mainState == SendUART) {
                 // Send UART.
                 IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
-
-//                if(buttonTwoState == Pressed)
-//                    mainState = ReadADC;
-//                else
-                mainState = ReadUS;
+//
+                if(buttonTwoState == Depressed)
+                    mainState = ReadUS;
+                else
+                    mainState = ReadADC;
             }
         }
     }
@@ -175,10 +203,10 @@ int main(void) {
                 // Get the 4 chars to be displayed.
                 IE2 |= UCA0RXIE;                          // Enable the Receive interrupt.
 
-//                if(digits[4] == 0)
+                if(digits[4] == 0)
                     mainState = DisplayUSValue;
-//                else
-//                    mainState = DisplayACCValue;
+                else
+                    mainState = DisplayACCValue;
             }
 
             if(mainState == DisplayUSValue) {
@@ -190,7 +218,7 @@ int main(void) {
 
             if(mainState == DisplayACCValue) {
                 // Display the split integers on each corresponding 7-segment dispaly.
-                displayScaled7Seg(digits, 3);
+                displayScaled7Seg(digits);
 
                 mainState = RecieveUART;
             }
@@ -202,27 +230,65 @@ int main(void) {
 
 /************************************************************************************
  * Function Name:              ** scaleADC **
- * Description: Scales the raw adc value between -30 - 30.
+ * Description: Scales the raw adc value between -3 - 3.
  *              The second place value will be the lest digit to be displayed.
  *              The first place value will be the right digit to be displayed.
- * Input:       int adcValue
+ * Input:       int adcValue, axisStates state, unsigned char* data
  * Returns:     int
  ************************************************************************************/
+void scaleADC(int adcValue, enum axisStates state, unsigned char* data) {
+    unsigned int target = 0;
+    unsigned int count = 0;
+    unsigned int median = 0;
 
-int scaleADC(int adcValue) {
-    int scaledMin = -10;
-    unsigned int scaledMax = 10;
-    float rawMax = 570;
-    float rawMin = 390;
+    if (state == axisX) {
+        target = X_MEDIAN;
+        median = X_MEDIAN;
+    }
+    else if (state == axisY) {
+        target = Y_MEDIAN;
+        median = Y_MEDIAN;
+    }
+    else if (state == axisZ) {
+        target = Z_MEDIAN;
+        median = Z_MEDIAN;
+    }
 
-    if(adcValue > 570)
-        return 570;
-    if(adcValue < 390)
-        return 390;
+    if((adcValue > median-2) && (adcValue < median+2)) {
+        data[0] = 0;
+        data[1] = 0;
+        data[5] = '\r';
+        return;
+    }
 
-    int scaled = (((adcValue - rawMin)) / (rawMax - rawMin) * (scaledMax - scaledMin)) + scaledMin;
+    else if (adcValue < median) {
+        while(target > adcValue) {
+            target -=1;
+            count++;
+        }
+        if(count > 90)
+            count = 90;
 
-    return scaled;
+        data[0] = count % 10;
+        count /= 10;
+        data[1] = count %10;
+        data[5] = '\r';
+        return;
+    }
+    else if (adcValue > median) {
+        while(target < adcValue) {
+            target +=1;
+            count++;
+        }
+        if(count > 90)
+            count = 90;
+
+        data[0] = count % 10;
+        count /= 10;
+        data[1] = count %10;
+        data[5] = '\r';
+        return;
+    }
 }
 
 /************************************************************************************
@@ -256,7 +322,7 @@ void setupADC() {
     P1SEL |= ACC_Y;                             // Set pin to analog.
     P1SEL |= ACC_Z;                             // Set pin to analog.
 
-    ADC10AE0 = ACC_Z + ACC_Y + ACC_X;           // Select A5-A7
+    ADC10AE0 = ACC_Z + ACC_Y + ACC_X;           // Select A3-A5
     ADC10CTL1 = INCH_5 + ADC10DIV_3 + CONSEQ_3; // Select highest channel A5 and select repeat-sequence-of-channels mode.
     ADC10CTL0 = ADC10SHT_3 + MSC + ADC10ON;     // Select clock speed, enable ADC10, and select longest sample and hold time.
     ADC10DTC1 = 3;                              // 3 channels for multi sample and hold.
@@ -268,26 +334,44 @@ void setupADC() {
 
 /************************************************************************************
  * Function Name:                 ** readAnalog **
- * Description: Samples the one of the A4-A6 analog pins and returns the digital value.
- * Input:       Unsigned short select
+ * Description: Samples the one of the A3-A5 analog pins and returns the digital value.
+ * Input:       enum axisStates select
  * Returns:     Unsigned int
  ************************************************************************************/
-unsigned int readAnalog(unsigned short select) {
+unsigned int readAnalog(enum axisStates select) {
     // Sampling and conversion start.
         ADC10CTL0 &= ~ENC;
         while (ADC10CTL1 & ADC10BUSY);               // Wait if ADC10 core is active
         ADC10CTL0 |= ENC + ADC10SC;                  // Sampling and conversion start.
+        __delay_cycles(10);
         ADC10SA = (unsigned int)adc;
 
-        // Select channel to recieve data from. z, y, or z axis.
-        if(select == 3)
+        // Select channel to receive data from. z, y, or x axis.
+        if(select == axisZ)
             return adc[2];
-        else if(select == 4)
+        else if(select == axisY)
             return adc[1];
-        else if(select == 5)
+        else if(select == axisX)
             return adc[0];
 
         return 0;
+}
+
+/************************************************************************************
+ * Function Name:              ** handleOSC **
+ * Description: Handles the oscillation that may occur with the adc.
+ * Input:       unsigned int adcValue, unsigned int prevValue
+ * Returns:     unsigned int
+ ************************************************************************************/
+unsigned int handleOSC(unsigned int adcValue, unsigned int prevValue) {
+    unsigned short threshold = 3;   // threshold to prevent oscillation.
+
+    // // If the current adc value - previous adc value is less than 2 then don't update the value to be displayed.
+    if(abs(adcValue - prevValue) <= threshold)  {
+        adcValue = prevValue;
+    }
+
+    return adcValue;
 }
 
 /****************************************************************************************
@@ -299,9 +383,8 @@ unsigned int readAnalog(unsigned short select) {
  * Returns:     unsigned short
  ****************************************************************************************/
  unsigned short displayOne7Seg(unsigned char segValue, unsigned short select) {
-    P2OUT |= 0xFF; // Flush the current bits.
-    P1OUT |= 0xFF; // Flush the current bits.
-
+    P2OUT = 0xFF; // Flush the current bits.
+    P1OUT = 0xFF; // Flush the current bits.
 
     // Set the 7-segment display the digit will be displayed to.
     if(select == 0) {
@@ -364,12 +447,18 @@ unsigned int readAnalog(unsigned short select) {
         P1OUT &= SEG_DOT; // Display dot.
     else if(segValue == '-')
         P2OUT &= SEG_DASH; // Display dash -
-    else if(segValue == 'X')
-        P2OUT &= SEG_X; // Display X
-    else if(segValue == 'Y')
-        P2OUT &= SEG_Y; // Display Y
-        else if(segValue == 'Z')
-        P2OUT &= SEG_Z; // Display Z
+    else if(segValue == 'X') {
+        P1OUT &= SEG_X_P1; // Display X
+        P2OUT &= SEG_X_P2; // Display X
+    }
+    else if(segValue == 'Y') {
+        P1OUT &= SEG_Y_P1; // Display Y
+        P2OUT &= SEG_Y_P2; // Display Y
+    }
+    else if(segValue == 'Z') {
+        P1OUT &= SEG_Z_P1; // Display Z
+        P2OUT &= SEG_Z_P2; // Display Z
+    }
 
     return 0;
 }
@@ -390,29 +479,29 @@ void displayRaw7Seg(unsigned char* data, unsigned short dotDisplayed) {
     // The least significant display's digit is displayed first.
     if(data[3] !=0) {
         displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[2], 2); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[3], 3); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
     } else if(data[3] == 0 && data[2] != 0) {
         displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[2], 2); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
     } else if(data[2] == 0 && data[1] != 0) {
         displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
         displayOne7Seg(data[1], 1); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
 
     } else {
         displayOne7Seg(data[0], 0); // Display the digit/char associated with the digital value.
-        __delay_cycles(800);
+        __delay_cycles(200);
     }
 
     // Display decimal based on passed in segment to display on.
@@ -440,13 +529,13 @@ void displayRaw7Seg(unsigned char* data, unsigned short dotDisplayed) {
 /*****************************************************************************************
  * Function Name:                 ** displayScaled7Seg **
  * Description: Displays the corresponding passed in digits to all 4 7-segment display.
- *              Displays scaled value between -30 and 30 converted to Gs.
+ *              Displays scaled value between -3 and 3 converted to Gs.
  *              Displays decmimal point on the second display.
  * Input:       unsigned char *digits, unsigned short axis.
  *
  * Returns:     void
  *****************************************************************************************/
-void displayScaled7Seg(unsigned char* digits, unsigned short axis) {
+void displayScaled7Seg(unsigned char* digits) {
     // Display dash if value is negative
     if(digits[3] == 1) {
         displayOne7Seg('-', 2);
@@ -460,7 +549,7 @@ void displayScaled7Seg(unsigned char* digits, unsigned short axis) {
     __delay_cycles(1000);
 
     // Display X,Y,Z based on the axis to be displayed.
-    switch(axis) {
+    switch(digits[2]) {
         // x axis.
         case 1:
             displayOne7Seg('X', 3);
@@ -495,7 +584,7 @@ void parseADC(unsigned int adcValue, unsigned char* data){
     data[1] = (adcValue / 10) % 10;   // 10's place.
     data[2] = (adcValue/100) % 10;    // 100's palce.
     data[3] = (adcValue/1000) % 10;   // 1000's plce.
-    data[4] = '\r';                   // Add char to denote end of string.
+    data[5] = '\r';                   // Add char to denote end of string.
 }
 
 /************************************************************************************
@@ -505,8 +594,7 @@ void parseADC(unsigned int adcValue, unsigned char* data){
  * Returns:     void
  ************************************************************************************/
 void setupPinsTx() {
-
-    // Set button and ultrasonic directions.
+    // Set button and ultrasonic trigger directions.
     P2DIR |= 0x92;
     P2SEL &= ~BIT6;
     P2SEL &= ~BIT7;
@@ -524,10 +612,11 @@ void setupPinsTx() {
     UCA0CTL1 &= ~UCSWRST;                     // **Initialize USCI state machine**
 
     P2OUT &= ~TRIG; // Set the trigger pin to initally low.
-    P1SEL |= ECHO; // Set ECHO Pin as CCI0A (Capture Input signal).
+    P1SEL |= ECHO;  // Set ECHO Pin as CCI0A (Capture Input signal).
 
     // Timer setup for ultrasonic.
     BCSCTL2 &= ~(DIVS_3); // SMCLK = DCO = 1MHz
+
     // Stop timer before modifying the configuration.
     TACTL = MC_0;
     CCTL0 |= CM_3 + SCS + CCIS_0 + CAP + CCIE;
@@ -535,16 +624,24 @@ void setupPinsTx() {
     // Select SMCLK with no divisions, continuous mode.
     TACTL |= TASSEL_2 + MC_2 + ID_0;
 
+    // Setup pwm for speaker
+    BCSCTL1   = CALBC1_1MHZ;                    // 1MHz DCO
+    DCOCTL    = CALDCO_1MHZ;                    // 1MHz DCO
+    P2DIR    |= SPEAKER;                           // P2.1 output direction
+
+    TA1CCTL1  = OUTMOD_7;                       // reset/set for PWM
+    TA1CTL    = TASSEL_2 | ID_0 | MC_1 | TACLR; // SMCLK, CLK divider 1, up-mode, clear
+
     // Setup buttons on 2.2 and 2.3.
     P2REN |= SW1; // Enable pullup/pulldown resistors for P3.3
     P2OUT |= SW1; // Set P1.3 to have pull up resistors
     P2IE |= SW1;  // Enable interrupt on P2.3
     P2IES &= ~SW1; // Set interrupt flag on the rising edge of logic level on P2.3
-//
-//    P2REN |= SW2; // Enable pullup/pulldown resistors for P2.2
-//    P2OUT |= SW2; // Set P2.2 to have pull up resistors
-//    P2IE |= SW2;  // Enable interrupt on P1.2
-//    P2IES &= ~SW2; // Set interrupt flag on the rising edge of logic level on P1.2
+
+    P2REN |= SW2; // Enable pullup/pulldown resistors for P2.2
+    P2OUT |= SW2; // Set P2.2 to have pull up resistors
+    P2IE |= SW2;  // Enable interrupt on P1.2
+    P2IES &= ~SW2; // Set interrupt flag on the rising edge of logic level on P1.2
 }
 
 /************************************************************************************
@@ -579,26 +676,25 @@ void setupPinsRx() {
     UCA0CTL1 &= ~UCSWRST;                     // **Initialize USCI state machine**
 }
 
+/************************************************************************************
+ * Function Name:              ** playSound **
+ * Description: Plays the speaker at a specified frequency.
+ * Input:       unsigned int freq
+ * Returns:     void
+ ************************************************************************************/
 void playSound(unsigned int freq) {
-    BCSCTL1   = CALBC1_1MHZ;                    // 1MHz DCO
-    DCOCTL    = CALDCO_1MHZ;                    // 1MHz DCO
-
     P2SEL    |= SPEAKER;                           // P2.1 to TA1.1
-    P2DIR    |= SPEAKER;                           // P2.1 output direction
-
-    TA1CCTL1  = OUTMOD_7;                       // reset/set for PWM
 
     int period = FREQ_CPU/freq;   // period of the frequency to be played when mcu at 1MHz.
 
     TA1CCR0   = period;                         // Set the period
     TA1CCR1   = period/2;                       // 50% duty cycle
-    TA1CTL    = TASSEL_2 | ID_0 | MC_1 | TACLR; // SMCLK, CLK divider 1, up-mode, clear
 }
 
 
 /************************************************************************************
  * Function Name:              ** measureOne **
- * Description: Enables the trigger for measuring with ultrasonic sensro
+ * Description: Enables the trigger for measuring with ultrasonic sensor
  * Input:       No Input
  * Returns:     void
  ************************************************************************************/
@@ -613,46 +709,54 @@ void measureOne() {
     // Send pulse for 10us.
     __delay_cycles(10);
 
-    // Disable TRIGGER.
+//    // Disable TRIGGER.
     P2OUT &= ~TRIG;
 
     // wait 10ms until next measurement.
-    __delay_cycles(10000);
+    __delay_cycles(25000);
 }
 
 /************************************************************************************
  * Function Name:              ** measure **
  * Description: Measure multiple distances from ultrasonic sensor and return the median.
  * Input:       No Input
- * Returns:     unsigned long
+ * Returns:     unsigned int
  ************************************************************************************/
 unsigned int measure() {
-    unsigned int distance[11];
+    unsigned int distance[7];
     unsigned short i;
 
-    for(i=0; i<11; i++) {
+    // Get the median distance
+    for(i=0; i<7; i++) {
         measureOne();
         distance[i] = oneDistance;
     }
 
-    sort(distance,11);
+    sort(distance,7);
 
-    if(soundState == Frequency1 && distance[6] == 5)
-        playSound(100);
-    else if(soundState == Frequency2 && distance[6] == 10)
-        playSound(500);
-    else if(soundState == Frequency3 && distance[6] == 15)
+    // Play sound.
+    if((distance[4]  == 5) & (soundState == Frequency1))
+        playSound(3000);
+    else if((distance[4]  == 20) & (soundState == Frequency2))
+        playSound(2000);
+    else if((distance[4]  == 50) & (soundState == Frequency3))
             playSound(1000);
-    else if(soundState == Frequency4 && distance[6] == 20)
-            playSound(2000);
-    else if(soundState == Frequency5 && distance[6] == 25)
-            playSound(3000);
+    else if((distance[4]  == 90) & (soundState == Frequency4))
+            playSound(500);
+    else if((distance[4]  == 200) & (soundState == Frequency5))
+            playSound(100);
     else
         P2SEL &= ~SPEAKER;
 
-    return distance[6];
+    return distance[4];
 }
 
+/************************************************************************************
+ * Function Name:              ** sort **
+ * Description: Helper function to sort an array.
+ * Input:       unsigned int array[], int size
+ * Returns:     void
+ ************************************************************************************/
 void sort(unsigned int array[], int size) {
   unsigned short step;
   // loop to access each array element
@@ -674,7 +778,6 @@ void sort(unsigned int array[], int size) {
     }
   }
 }
-
 /************************************************************************************
  * Function Name:              ** USCI0TX_ISR **
  * Description: Sets the Tx buffer to the characters needed to send.
@@ -744,13 +847,13 @@ __interrupt void USCI0RX_ISR(void)
 #pragma vector = TIMER0_A0_VECTOR
 __interrupt void TA1_ISR(void) {
 
-//    switch (TAIV){
-//    //Timer overflow
-//    case 10:
-//        break;
-//        //Otherwise Capture Interrupt
-//
-//    default:
+    switch (TAIV){
+    //Timer overflow
+    case 10:
+        break;
+        //Otherwise Capture Interrupt
+
+    default:
         // Read the CCI bit (ECHO signal) in CCTL0
         // If ECHO is HIGH then start counting (rising edge)
 
@@ -762,12 +865,19 @@ __interrupt void TA1_ISR(void) {
 
             endTime = CCR0;
             deltaTime = endTime - startTime;
-            oneDistance = (deltaTime)/58;
+            unsigned int dist = (deltaTime)/58;
+
+            if (dist < 2.0)
+                dist = 2;
+            else if (dist > 400)
+                dist = 400;
+
+            oneDistance = dist;
         }
 
-//        break;
-//
-//    }
+        break;
+
+    }
 
     TACTL &= ~CCIFG; // reset the interrupt flag
 }
@@ -785,10 +895,18 @@ __interrupt void Port_2(void)
     __delay_cycles(20000);
 
     if(!(P2IN & SW1)) {
-        if(soundState == Frequency5)
-            soundState = Frequency1;
-        else
-            soundState++;
+        if(buttonTwoState == Depressed) {
+            if(soundState == Frequency5)
+                soundState = Frequency1;
+            else
+                soundState++;
+        }
+        else {
+            if(axisState == axisZ)
+                axisState = axisX;
+            else
+                axisState++;
+        }
     }
 
     if(!(P2IN & SW2)) {
@@ -796,9 +914,9 @@ __interrupt void Port_2(void)
                 buttonTwoState = Pressed;
             else
                 buttonTwoState = Depressed;
-        }
-
-    P2IFG&=~BIT3; // Reset Port1 interrupt flag.
+  }
+    P2IFG&=~SW1; // Reset Port2 interrupt flag.
+    P2IFG&=~SW2; // Reset Port2 interrupt flag.
 }
 
 
