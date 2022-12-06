@@ -78,6 +78,7 @@ volatile unsigned long startTime;
 volatile unsigned long endTime;
 volatile unsigned long deltaTime;
 volatile unsigned int oneDistance;
+short measured = 0;
 
 // Function prototypes.
 void setupADC();                                                      // Setup the adc pin connected to the potentiometer.
@@ -96,6 +97,8 @@ void scaleADC(int, enum axisStates, unsigned char*);                  // Scale t
 void sort(unsigned int array[], int);                                 // Sort distance array.
 unsigned int handleOSC(unsigned int, unsigned int);                   // Handles the oscillation of the digits.
 void calibrate();                                                     // Calibrate axis' median values.
+void sendData();
+void receiveData();
 
 int main(void) {
     WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
@@ -131,7 +134,12 @@ int main(void) {
 
             if (mainState == ReadUS) {
                 // Measure from US.
-                distance = measure();
+                if(measured == 0){
+                    measureOne();
+                    measured = 1;
+                    distance = oneDistance;
+                }
+//                distance = measure();
 
                 // Splits the distance value into 4 separate integers based on place-value.
                 parseADC(distance, digits);
@@ -165,7 +173,7 @@ int main(void) {
 
             if (mainState == SendUART) {
                 // Send UART.
-                IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
+                sendData();
 
                 if(buttonTwoState == Depressed)
                     mainState = ReadUS;
@@ -185,7 +193,7 @@ int main(void) {
 
             if(mainState == RecieveUART) {
                 // Get the 4 chars to be displayed.
-                IE2 |= UCA0RXIE;                          // Enable the Receive interrupt.
+                receiveData();
 
                 if(digits[4] == 0)
                     mainState = DisplayUSValue;
@@ -727,7 +735,7 @@ void measureOne() {
     P2OUT &= ~TRIG;
 
     // wait 10ms until next measurement.
-    __delay_cycles(12000);
+    __delay_cycles(10);
 }
 
 /************************************************************************************
@@ -737,6 +745,7 @@ void measureOne() {
  * Returns:     unsigned int
  ************************************************************************************/
 unsigned int measure() {
+
     unsigned int distance[7];
     unsigned short i;
 
@@ -792,15 +801,8 @@ void sort(unsigned int array[], int size) {
     }
   }
 }
-/************************************************************************************
- * Function Name:              ** USCI0TX_ISR **
- * Description: Sets the Tx buffer to the characters needed to send.
- * Input:       No Input
- * Returns:     void
- ************************************************************************************/
-#pragma vector=USCIAB0TX_VECTOR
-__interrupt void USCI0TX_ISR(void)
-{
+
+void sendData() {
     // Send start character.
     while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
     UCA0TXBUF = '(';
@@ -817,39 +819,30 @@ __interrupt void USCI0TX_ISR(void)
     // Send stop character.
     while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
     UCA0TXBUF = ')';
-
-    IE2 &= ~UCA0TXIE;          // Disable USCI_A0 TX interrupt
 }
 
-/************************************************************************************
- * Function Name:              ** USCI0RX_ISR **
- * Description: Sets an array from incoming characters over UART.
- * Input:       No Input
- * Returns:     void
- ************************************************************************************/
-#pragma vector=USCIAB0RX_VECTOR
-__interrupt void USCI0RX_ISR(void)
-{
+void receiveData() {
     // Check for starting character.
-    while (!(IFG2&UCA0RXIFG));                  // USCI_A0 TR buffer ready?
-    if(UCA0RXBUF == '(') {
-        unsigned short i = 0;
+//    while (!(IFG2&UCA0RXIFG));                  // USCI_A0 TR buffer ready?
+    if ((IFG2&UCA0RXIFG)) {
+        if(UCA0RXBUF == '(') {
+            unsigned short i = 0;
 
-        // start recieving the message.
-        while (!(IFG2&UCA0RXIFG));
-        unsigned char currChar = UCA0RXBUF;
+            // start recieving the message.
+            while (!(IFG2&UCA0RXIFG));
+            unsigned char currChar = UCA0RXBUF;
 
-        // Loop until stop character is found and add data to digits array.
-        while(currChar != ')') {
-            while (!(IFG2&UCA0RXIFG));          // USCI_A0 TR buffer ready?
-            digits[i] = currChar;               // TX -> RXed character
-            currChar = UCA0RXBUF;
-            i++;
+            // Loop until stop character is found and add data to digits array.
+            while(currChar != ')') {
+                while (!(IFG2&UCA0RXIFG));          // USCI_A0 TR buffer ready?
+                digits[i] = currChar;               // TX -> RXed character
+                currChar = UCA0RXBUF;
+                i++;
+            }
+
+            digits[i++] = '\r';
         }
-        digits[i++] = '\r';
     }
-
-    IE2 &= ~UCA0RXIE;                           // Disable the Recieve interrupt
 }
 
 /************************************************************************************
@@ -876,7 +869,6 @@ __interrupt void TA1_ISR(void) {
         }
         // If ECHO is LOW then stop counting (falling edge)
         else {
-
             endTime = CCR0;
             deltaTime = endTime - startTime;
             unsigned int dist = (deltaTime)/58;
@@ -887,6 +879,7 @@ __interrupt void TA1_ISR(void) {
                 dist = 400;
 
             oneDistance = dist;
+            measured = 0;
         }
 
         break;
@@ -926,7 +919,3 @@ __interrupt void Port_2(void)
     P2IFG&=~SW1; // Reset Port2 interrupt flag.
     P2IFG&=~SW2; // Reset Port2 interrupt flag.
 }
-
-
-
-

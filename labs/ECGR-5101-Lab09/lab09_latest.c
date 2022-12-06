@@ -96,6 +96,9 @@ void scaleADC(int, enum axisStates, unsigned char*);                  // Scale t
 void sort(unsigned int array[], int);                                 // Sort distance array.
 unsigned int handleOSC(unsigned int, unsigned int);                   // Handles the oscillation of the digits.
 void calibrate();                                                     // Calibrate axis' median values.
+volatile short measured = 0;
+void sendData();
+void receiveData();
 
 int main(void) {
     WDTCTL = WDTPW | WDTHOLD;       // stop watchdog timer
@@ -128,10 +131,13 @@ int main(void) {
         calibrate();
 
         while(1) {
-
             if (mainState == ReadUS) {
                 // Measure from US.
-                distance = measure();
+                if(measured == 0) {
+//                    distance = measure();
+                    measureOne();
+                    distance = oneDistance;
+                }
 
                 // Splits the distance value into 4 separate integers based on place-value.
                 parseADC(distance, digits);
@@ -166,6 +172,7 @@ int main(void) {
             if (mainState == SendUART) {
                 // Send UART.
                 IE2 |= UCA0TXIE;                          // Enable the Transmit interrupt
+//                sendData();
 
                 if(buttonTwoState == Depressed)
                     mainState = ReadUS;
@@ -186,6 +193,7 @@ int main(void) {
             if(mainState == RecieveUART) {
                 // Get the 4 chars to be displayed.
                 IE2 |= UCA0RXIE;                          // Enable the Receive interrupt.
+//                receiveData();
 
                 if(digits[4] == 0)
                     mainState = DisplayUSValue;
@@ -303,10 +311,10 @@ void scaleADC(int adcValue, enum axisStates state, unsigned char* data) {
         scaled = 90;
 
     // Play speaker if level
-//    if(scaled == 0)
-//        playSound(1000);
-//    else
-//        P2SEL &= ~SPEAKER;
+    if(scaled == 0)
+        playSound(1000);
+    else
+        P2SEL &= ~SPEAKER;
 
     // Split the y and x axis up to the respective display to be displayed.
     if(state == axisY) {
@@ -726,8 +734,7 @@ void measureOne() {
 //    // Disable TRIGGER.
     P2OUT &= ~TRIG;
 
-    // wait 10ms until next measurement.
-    __delay_cycles(12000);
+    measured = 1;
 }
 
 /************************************************************************************
@@ -742,8 +749,10 @@ unsigned int measure() {
 
     // Get the median distance
     for(i=0; i<7; i++) {
-        measureOne();
-        distance[i] = oneDistance;
+        if(measured == 0) {
+            measureOne();
+            distance[i] = oneDistance;
+        }
     }
 
     sort(distance,7);
@@ -852,6 +861,49 @@ __interrupt void USCI0RX_ISR(void)
     IE2 &= ~UCA0RXIE;                           // Disable the Recieve interrupt
 }
 
+void sendData() {
+    // Send start character.
+    while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
+    UCA0TXBUF = '(';
+
+    unsigned short i = 0;
+
+    // Loop until the end of the array and send the characters.
+    while(digits[i] != '\r') {
+        while (!(IFG2&UCA0TXIFG));            // USCI_A0 TX buffer ready?
+        UCA0TXBUF = digits[i];                // TX next character
+        i++;
+    }
+
+    // Send stop character.
+    while (!(IFG2&UCA0TXIFG));                // USCI_A0 TX buffer ready?
+    UCA0TXBUF = ')';
+}
+
+void receiveData() {
+    // Check for starting character.
+//    while (!(IFG2&UCA0RXIFG));                  // USCI_A0 TR buffer ready?
+    if ((IFG2&UCA0RXIFG)) {
+        if(UCA0RXBUF == '(') {
+            unsigned short i = 0;
+
+            // start recieving the message.
+            while (!(IFG2&UCA0RXIFG));
+            unsigned char currChar = UCA0RXBUF;
+
+            // Loop until stop character is found and add data to digits array.
+            while(currChar != ')') {
+                while (!(IFG2&UCA0RXIFG));          // USCI_A0 TR buffer ready?
+                digits[i] = currChar;               // TX -> RXed character
+                currChar = UCA0RXBUF;
+                i++;
+            }
+
+            digits[i++] = '\r';
+        }
+    }
+}
+
 /************************************************************************************
  * Function Name:              ** TA1_ISR **
  * Description: ISR for the echo pin.
@@ -872,7 +924,8 @@ __interrupt void TA1_ISR(void) {
         // If ECHO is HIGH then start counting (rising edge)
 
         if (CCTL0 & CCI) {
-            startTime = CCR0;
+            if(measured == 1)
+                startTime = CCR0;
         }
         // If ECHO is LOW then stop counting (falling edge)
         else {
@@ -887,6 +940,8 @@ __interrupt void TA1_ISR(void) {
                 dist = 400;
 
             oneDistance = dist;
+            measured = 0;
+            __delay_cycles(100000);
         }
 
         break;
