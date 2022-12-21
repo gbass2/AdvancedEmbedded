@@ -37,7 +37,7 @@
 
 
 ## Images:
-### Distance Measurement to an object
+### Distance Measurement to an object.
 ![Distance Measurement](images/distance_measurement.jpg "Distance Measurement")
 
 ### Degree Measurement of x and y axis. Shows level on both axis.
